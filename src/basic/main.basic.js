@@ -745,25 +745,13 @@ function updatePricesInCart() {
 main();
 addButton.addEventListener("click", function () {
   const selectedItemId = productSelect.value;
+  const selectedProduct = productList.find(product => product.id === selectedItemId);
 
-  let hasItem = false;
-  for (let index = 0; index < productList.length; index++) {
-    if (productList[index].id === selectedItemId) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selectedItemId || !hasItem) {
+  if (!selectedItemId || !selectedProduct) {
     return;
   }
-  let selectedProduct = null;
-  for (let j = 0; j < productList.length; j++) {
-    if (productList[j].id === selectedItemId) {
-      selectedProduct = productList[j];
-      break;
-    }
-  }
-  if (selectedProduct && selectedProduct.quantity > 0) {
+  
+  if (selectedProduct.quantity > 0) {
     const item = document.getElementById(selectedProduct["id"]);
     if (item) {
       const quantityElement = item.querySelector(".quantity-number");
@@ -816,18 +804,10 @@ cartDisplay.addEventListener("click", function (event) {
   ) {
     const productId = target.dataset.productId;
     const cartItemElement = document.getElementById(productId);
-    let prod = null;
-
-    for (
-      let productIndex = 0;
-      productIndex < productList.length;
-      productIndex++
-    ) {
-      if (productList[productIndex].id === productId) {
-        prod = productList[productIndex];
-        break;
-      }
-    }
+    const prod = productList.find(product => product.id === productId);
+    
+    if (!prod) return;
+    
     if (target.classList.contains("quantity-change")) {
       const quantityChange = parseInt(target.dataset.change);
       const quantityElement = cartItemElement.querySelector(".quantity-number");
