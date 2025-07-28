@@ -703,34 +703,10 @@ function updateStockInformation() {
   stockInformation.textContent = infoMsg;
 }
 function updatePricesInCart() {
-  let totalCount = 0,
-    j = 0;
-  while (cartDisplay.children[j]) {
-    const qty = cartDisplay.children[j].querySelector(".quantity-number");
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisplay.children.length; j++) {
-    totalCount += parseInt(
-      cartDisplay.children[j].querySelector(".quantity-number").textContent
-    );
-  }
   const cartItems = cartDisplay.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-
-    for (
-      let productIndex = 0;
-      productIndex < productList.length;
-      productIndex++
-    ) {
-      if (productList[productIndex].id === itemId) {
-        product = productList[productIndex];
-        break;
-      }
-    }
+    const product = productList.find(product => product.id === itemId);
     if (product) {
       const priceDiv = cartItems[i].querySelector(".text-lg");
       const nameDiv = cartItems[i].querySelector("h3");
