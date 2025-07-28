@@ -241,8 +241,8 @@ function main() {
   for (let i = 0; i < productList.length; i++) {
     initStock += productList[i].q;
   }
-  onUpdateSelectOptions();
-  handleCalculateCartStuff();
+  updateSelectOptions();
+  calculateCartTotals();
   lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
@@ -252,8 +252,8 @@ function main() {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
         alert("⚡번개세일! " + luckyItem.name + "이(가) 20% 할인 중입니다!");
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
+        updateSelectOptions();
+        updatePricesInCart();
       }
     }, 30000);
   }, lightningDelay);
@@ -283,15 +283,15 @@ function main() {
 
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
+          updateSelectOptions();
+          updatePricesInCart();
         }
       }
     }, 60000);
   }, Math.random() * 20000);
 }
 let sum;
-function onUpdateSelectOptions() {
+function updateSelectOptions() {
   let totalStock;
   let opt;
   let discountText;
@@ -358,7 +358,7 @@ function onUpdateSelectOptions() {
     productSelect.style.borderColor = "";
   }
 }
-function handleCalculateCartStuff() {
+function calculateCartTotals() {
   let cartItems;
   let subtotal;
   let itemDiscounts;
@@ -586,10 +586,10 @@ function handleCalculateCartStuff() {
   }
   stockInformation.textContent = stockMsg;
 
-  handleStockInformationUpdate();
-  doRenderBonusPoints();
+  updateStockInformation();
+  renderBonusPoints();
 }
-var doRenderBonusPoints = function () {
+var renderBonusPoints = function () {
   let basePoints;
   let finalPoints;
   let pointsDetail;
@@ -679,7 +679,7 @@ var doRenderBonusPoints = function () {
     }
   }
 };
-function onGetStockTotal() {
+function getStockTotal() {
   let sum;
   let i;
   let currentProduct;
@@ -690,12 +690,12 @@ function onGetStockTotal() {
   }
   return sum;
 }
-const handleStockInformationUpdate = function () {
+const updateStockInformation = function () {
   let infoMsg;
   let totalStock;
   let messageOptimizer;
   infoMsg = "";
-  totalStock = onGetStockTotal();
+  totalStock = getStockTotal();
   if (totalStock < 30) {
   }
   productList.forEach(function (item) {
@@ -709,7 +709,7 @@ const handleStockInformationUpdate = function () {
   });
   stockInformation.textContent = infoMsg;
 };
-function doUpdatePricesInCart() {
+function updatePricesInCart() {
   let totalCount = 0,
     j = 0;
   let cartItems;
@@ -768,7 +768,7 @@ function doUpdatePricesInCart() {
       }
     }
   }
-  handleCalculateCartStuff();
+  calculateCartTotals();
 }
 main();
 addButton.addEventListener("click", function () {
@@ -829,7 +829,7 @@ addButton.addEventListener("click", function () {
       cartDisplay.appendChild(newItem);
       itemToAdd.q--;
     }
-    handleCalculateCartStuff();
+    calculateCartTotals();
     lastSelectedItem = selItem;
   }
 });
@@ -871,7 +871,7 @@ cartDisplay.addEventListener("click", function (event) {
     }
     if (prod && prod.q < 5) {
     }
-    handleCalculateCartStuff();
-    onUpdateSelectOptions();
+    calculateCartTotals();
+    updateSelectOptions();
   }
 });
