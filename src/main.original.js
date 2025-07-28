@@ -1,6 +1,6 @@
 let productList;
 let bonusPoints = 0;
-let stockInfo;
+let stockInformation;
 let itemCount;
 let lastSel;
 let productSelect;
@@ -11,7 +11,7 @@ const PRODUCT_TWO = "p2";
 const PRODUCT_THREE = "p3";
 const PRODUCT_FOUR = "p4";
 const PRODUCT_FIVE = "p5";
-let cartDisp;
+let cartDisplay;
 function main() {
   var root;
   let header;
@@ -94,20 +94,20 @@ function main() {
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
   addButton = document.createElement("button");
-  stockInfo = document.createElement("div");
+  stockInformation = document.createElement("div");
   addButton.id = "add-to-cart";
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+  stockInformation.id = "stock-status";
+  stockInformation.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
   addButton.innerHTML = "Add to Cart";
   addButton.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
   selectorContainer.appendChild(productSelect);
   selectorContainer.appendChild(addButton);
-  selectorContainer.appendChild(stockInfo);
+  selectorContainer.appendChild(stockInformation);
   leftColumn.appendChild(selectorContainer);
-  cartDisp = document.createElement("div");
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = "cart-items";
+  cartDisplay = document.createElement("div");
+  leftColumn.appendChild(cartDisplay);
+  cartDisplay.id = "cart-items";
   rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
@@ -259,7 +259,7 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisp.children.length === 0) {
+      if (cartDisplay.children.length === 0) {
       }
       if (lastSel) {
         let suggest = null;
@@ -382,7 +382,7 @@ function handleCalculateCartStuff() {
   let loyaltyDiv;
   totalAmount = 0;
   itemCount = 0;
-  cartItems = cartDisp.children;
+  cartItems = cartDisplay.children;
   subTot = 0;
   itemDiscounts = [];
   lowStockItems = [];
@@ -584,9 +584,9 @@ function handleCalculateCartStuff() {
       }
     }
   }
-  stockInfo.textContent = stockMsg;
+  stockInformation.textContent = stockMsg;
 
-  handleStockInfoUpdate();
+  handleStockInformationUpdate();
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function () {
@@ -598,7 +598,7 @@ var doRenderBonusPoints = function () {
   let hasMouse;
   let hasMonitorArm;
   let nodes;
-  if (cartDisp.children.length === 0) {
+  if (cartDisplay.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
@@ -619,7 +619,7 @@ var doRenderBonusPoints = function () {
   hasKeyboard = false;
   hasMouse = false;
   hasMonitorArm = false;
-  nodes = cartDisp.children;
+  nodes = cartDisplay.children;
   for (const node of nodes) {
     let product = null;
 
@@ -690,7 +690,7 @@ function onGetStockTotal() {
   }
   return sum;
 }
-var handleStockInfoUpdate = function () {
+const handleStockInformationUpdate = function () {
   let infoMsg;
   let totalStock;
   let messageOptimizer;
@@ -707,24 +707,24 @@ var handleStockInfoUpdate = function () {
       }
     }
   });
-  stockInfo.textContent = infoMsg;
+  stockInformation.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
   let cartItems;
-  while (cartDisp.children[j]) {
-    const qty = cartDisp.children[j].querySelector(".quantity-number");
+  while (cartDisplay.children[j]) {
+    const qty = cartDisplay.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
     j++;
   }
   totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
+  for (j = 0; j < cartDisplay.children.length; j++) {
     totalCount += parseInt(
-      cartDisp.children[j].querySelector(".quantity-number").textContent
+      cartDisplay.children[j].querySelector(".quantity-number").textContent
     );
   }
-  cartItems = cartDisp.children;
+  cartItems = cartDisplay.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
@@ -826,14 +826,14 @@ addButton.addEventListener("click", function () {
           <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
         </div>
       `;
-      cartDisp.appendChild(newItem);
+      cartDisplay.appendChild(newItem);
       itemToAdd.q--;
     }
     handleCalculateCartStuff();
     lastSel = selItem;
   }
 });
-cartDisp.addEventListener("click", function (event) {
+cartDisplay.addEventListener("click", function (event) {
   const tgt = event.target;
   if (
     tgt.classList.contains("quantity-change") ||
