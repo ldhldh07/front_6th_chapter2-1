@@ -7,10 +7,10 @@ let sel;
 let addBtn;
 let totalAmt = 0;
 const PRODUCT_ONE = "p1";
-const p2 = "p2";
-const product_3 = "p3";
-const p4 = "p4";
-const PRODUCT_5 = "p5";
+const PRODUCT_TWO = "p2";
+const PRODUCT_THREE = "p3";
+const PRODUCT_FOUR = "p4";
+const PRODUCT_FIVE = "p5";
 let cartDisp;
 function main() {
   var root;
@@ -37,7 +37,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p2,
+      id: PRODUCT_TWO,
       name: "생산성 폭발 마우스",
       val: 20000,
       originalVal: 20000,
@@ -46,7 +46,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: product_3,
+      id: PRODUCT_THREE,
       name: "거북목 탈출 모니터암",
       val: 30000,
       originalVal: 30000,
@@ -55,7 +55,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p4,
+      id: PRODUCT_FOUR,
       name: "에러 방지 노트북 파우치",
       val: 15000,
       originalVal: 15000,
@@ -64,7 +64,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: PRODUCT_5,
+      id: PRODUCT_FIVE,
       name: "코딩할 때 듣는 Lo-Fi 스피커",
       val: 25000,
       originalVal: 25000,
@@ -419,16 +419,16 @@ function handleCalculateCartStuff() {
         if (curItem.id === PRODUCT_ONE) {
           disc = 10 / 100;
         } else {
-          if (curItem.id === p2) {
+          if (curItem.id === PRODUCT_TWO) {
             disc = 15 / 100;
           } else {
-            if (curItem.id === product_3) {
+            if (curItem.id === PRODUCT_THREE) {
               disc = 20 / 100;
             } else {
-              if (curItem.id === p4) {
+              if (curItem.id === PRODUCT_FOUR) {
                 disc = 5 / 100;
               } else {
-                if (curItem.id === PRODUCT_5) {
+                if (curItem.id === PRODUCT_FIVE) {
                   disc = 25 / 100;
                 }
               }
@@ -631,9 +631,9 @@ var doRenderBonusPoints = function () {
     if (!product) continue;
     if (product.id === PRODUCT_ONE) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === PRODUCT_TWO) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === PRODUCT_THREE) {
       hasMonitorArm = true;
     }
   }
