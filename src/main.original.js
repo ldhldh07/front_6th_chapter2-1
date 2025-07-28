@@ -1,7 +1,7 @@
 let productList;
 let bonusPoints = 0;
 let stockInfo;
-let itemCnt;
+let itemCount;
 let lastSel;
 let sel;
 let addBtn;
@@ -24,7 +24,7 @@ function main() {
   let manualColumn;
   let lightningDelay;
   totalAmt = 0;
-  itemCnt = 0;
+  itemCount = 0;
   lastSel = null;
   productList = [
     {
@@ -380,7 +380,7 @@ function handleCalculateCartStuff() {
   let hasP2;
   let loyaltyDiv;
   totalAmt = 0;
-  itemCnt = 0;
+  itemCount = 0;
   cartItems = cartDisp.children;
   subTot = 0;
   itemDiscounts = [];
@@ -406,7 +406,7 @@ function handleCalculateCartStuff() {
       q = parseInt(qtyElem.textContent);
       itemTot = curItem.val * q;
       disc = 0;
-      itemCnt += q;
+      itemCount += q;
       subTot += itemTot;
       const itemDiv = cartItems[i];
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
@@ -444,7 +444,7 @@ function handleCalculateCartStuff() {
   }
   let discRate = 0;
   var originalTotal = subTot;
-  if (itemCnt >= 30) {
+  if (itemCount >= 30) {
     totalAmt = (subTot * 75) / 100;
     discRate = 25 / 100;
   } else {
@@ -467,7 +467,7 @@ function handleCalculateCartStuff() {
     tuesdaySpecial.classList.add("hidden");
   }
   document.getElementById("item-count").textContent =
-    "🛍️ " + itemCnt + " items in cart";
+    "🛍️ " + itemCount + " items in cart";
   summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
@@ -498,7 +498,7 @@ function handleCalculateCartStuff() {
       </div>
     `;
 
-    if (itemCnt >= 30) {
+    if (itemCount >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -565,8 +565,8 @@ function handleCalculateCartStuff() {
   itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
-    if (previousCount !== itemCnt) {
+    itemCountElement.textContent = "🛍️ " + itemCount + " items in cart";
+    if (previousCount !== itemCount) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
@@ -646,15 +646,15 @@ var doRenderBonusPoints = function () {
     pointsDetail.push("풀세트 구매 +100p");
   }
 
-  if (itemCnt >= 30) {
+  if (itemCount >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("대량구매(30개+) +100p");
   } else {
-    if (itemCnt >= 20) {
+    if (itemCount >= 20) {
       finalPoints = finalPoints + 50;
       pointsDetail.push("대량구매(20개+) +50p");
     } else {
-      if (itemCnt >= 10) {
+      if (itemCount >= 10) {
         finalPoints = finalPoints + 20;
         pointsDetail.push("대량구매(10개+) +20p");
       }
