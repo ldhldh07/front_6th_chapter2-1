@@ -60,13 +60,7 @@ function findProductById(productId) {
   return productList.find(product => product.id === productId);
 }
 
-function getLowStockItems() {
-  return productList
-    .filter(
-      product => product.quantity < LOW_STOCK_THRESHOLD && product.quantity > 0
-    )
-    .map(product => product.name);
-}
+
 
 let cartDisplay;
 let cartTotalElement;
@@ -311,6 +305,7 @@ function main() {
   setTimeout(function () {
     setInterval(function () {
       if (cartDisplay.children.length === 0) {
+        return;
       }
       if (lastSelectedItem) {
         let suggest = null;
@@ -423,7 +418,6 @@ function calculateCartTotals() {
   const cartItems = cartDisplay.children;
   subtotal = 0;
   const itemDiscounts = [];
-  const lowStockItems = getLowStockItems();
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       const product = findProductById(cartItems[i].id);
@@ -710,8 +704,7 @@ const updateStockInformation = function () {
   let messageOptimizer;
   infoMsg = "";
   totalStock = getStockTotal();
-  if (totalStock < 30) {
-  }
+
   productList.forEach(function (item) {
     if (item.quantity < LOW_STOCK_THRESHOLD) {
       if (item.quantity > 0) {
@@ -895,8 +888,7 @@ cartDisplay.addEventListener("click", function (event) {
       prod.quantity += removedQuantity;
       cartItemElement.remove();
     }
-    if (prod && prod.quantity < LOW_STOCK_THRESHOLD) {
-    }
+
     calculateCartTotals();
     updateSelectOptions();
   }
