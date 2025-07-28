@@ -5,7 +5,7 @@ let itemCount;
 let lastSel;
 let productSelect;
 let addButton;
-let totalAmt = 0;
+let totalAmount = 0;
 const PRODUCT_ONE = "p1";
 const PRODUCT_TWO = "p2";
 const PRODUCT_THREE = "p3";
@@ -23,7 +23,7 @@ function main() {
   let manualOverlay;
   let manualColumn;
   let lightningDelay;
-  totalAmt = 0;
+  totalAmount = 0;
   itemCount = 0;
   lastSel = null;
   productList = [
@@ -380,7 +380,7 @@ function handleCalculateCartStuff() {
   let hasP1;
   let hasP2;
   let loyaltyDiv;
-  totalAmt = 0;
+  totalAmount = 0;
   itemCount = 0;
   cartItems = cartDisp.children;
   subTot = 0;
@@ -440,26 +440,26 @@ function handleCalculateCartStuff() {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
       }
-      totalAmt += itemTot * (1 - disc);
+      totalAmount += itemTot * (1 - disc);
     })();
   }
   let discRate = 0;
   var originalTotal = subTot;
   if (itemCount >= 30) {
-    totalAmt = (subTot * 75) / 100;
+    totalAmount = (subTot * 75) / 100;
     discRate = 25 / 100;
   } else {
-    discRate = (subTot - totalAmt) / subTot;
+    discRate = (subTot - totalAmount) / subTot;
   }
 
   const today = new Date();
   const isTuesday = today.getDay() === 2;
   const tuesdaySpecial = document.getElementById("tuesday-special");
   if (isTuesday) {
-    if (totalAmt > 0) {
-      totalAmt = (totalAmt * 90) / 100;
+    if (totalAmount > 0) {
+      totalAmount = (totalAmount * 90) / 100;
 
-      discRate = 1 - totalAmt / originalTotal;
+      discRate = 1 - totalAmount / originalTotal;
       tuesdaySpecial.classList.remove("hidden");
     } else {
       tuesdaySpecial.classList.add("hidden");
@@ -517,7 +517,7 @@ function handleCalculateCartStuff() {
       });
     }
     if (isTuesday) {
-      if (totalAmt > 0) {
+      if (totalAmount > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
             <span class="text-xs">🌟 화요일 추가 할인</span>
@@ -535,11 +535,11 @@ function handleCalculateCartStuff() {
   }
   totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
+    totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
   }
   loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / 1000);
+    points = Math.floor(totalAmount / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
       loyaltyPointsDiv.style.display = "block";
@@ -551,8 +551,8 @@ function handleCalculateCartStuff() {
   discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
 
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+  if (discRate > 0 && totalAmount > 0) {
+    savedAmount = originalTotal - totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -602,7 +602,7 @@ var doRenderBonusPoints = function () {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000);
+  basePoints = Math.floor(totalAmount / 1000);
   finalPoints = 0;
   pointsDetail = [];
 
