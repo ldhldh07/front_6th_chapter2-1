@@ -65,7 +65,6 @@ function findProductById(productId) {
 let cartDisplay;
 let cartTotalElement;
 function main() {
-  let lightningDelay;
   totalAmount = 0;
   itemCount = 0;
   lastSelectedItem = null;
@@ -286,7 +285,7 @@ function main() {
   }
   updateSelectOptions();
   calculateCartTotals();
-  lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
+  const lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
   setTimeout(() => {
     setInterval(function () {
       const luckyIndex = Math.floor(Math.random() * productList.length);
@@ -349,7 +348,7 @@ function updateSelectOptions() {
     const product = productList[index];
     totalStock = totalStock + product.quantity;
   }
-  for (var i = 0; i < productList.length; i++) {
+  for (let i = 0; i < productList.length; i++) {
     (function () {
       const item = productList[i];
       option = document.createElement("option");
@@ -587,22 +586,19 @@ function calculateCartTotals() {
   updateStockInformation();
   renderBonusPoints();
 }
-var renderBonusPoints = function () {
-  let basePoints;
-  let finalPoints;
-  let pointsDetail;
-
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  let nodes;
+function renderBonusPoints() {
   if (cartDisplay.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
-  finalPoints = 0;
-  pointsDetail = [];
+  
+  const basePoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
+  let finalPoints = 0;
+  const pointsDetail = [];
+
+  let hasKeyboard;
+  let hasMouse;
+  let hasMonitorArm;
 
   if (basePoints > 0) {
     finalPoints = basePoints;
@@ -617,7 +613,7 @@ var renderBonusPoints = function () {
   hasKeyboard = false;
   hasMouse = false;
   hasMonitorArm = false;
-  nodes = cartDisplay.children;
+  const nodes = cartDisplay.children;
   for (const node of nodes) {
     let product = null;
 
@@ -700,10 +696,9 @@ function getStockTotal() {
 }
 const updateStockInformation = function () {
   let infoMsg;
-  let totalStock;
   let messageOptimizer;
   infoMsg = "";
-  totalStock = getStockTotal();
+  const totalStock = getStockTotal();
 
   productList.forEach(function (item) {
     if (item.quantity < LOW_STOCK_THRESHOLD) {
@@ -720,7 +715,6 @@ const updateStockInformation = function () {
 function updatePricesInCart() {
   let totalCount = 0,
     j = 0;
-  let cartItems;
   while (cartDisplay.children[j]) {
     const qty = cartDisplay.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
@@ -732,7 +726,7 @@ function updatePricesInCart() {
       cartDisplay.children[j].querySelector(".quantity-number").textContent
     );
   }
-  cartItems = cartDisplay.children;
+  const cartItems = cartDisplay.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
