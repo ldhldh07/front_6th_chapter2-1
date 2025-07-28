@@ -807,21 +807,21 @@ function updatePricesInCart() {
 }
 main();
 addButton.addEventListener("click", function () {
-  const selItem = productSelect.value;
+  const selectedItemId = productSelect.value;
 
   let hasItem = false;
   for (let idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].id === selItem) {
+    if (productList[idx].id === selectedItemId) {
       hasItem = true;
       break;
     }
   }
-  if (!selItem || !hasItem) {
+  if (!selectedItemId || !hasItem) {
     return;
   }
   let selectedProduct = null;
   for (let j = 0; j < productList.length; j++) {
-    if (productList[j].id === selItem) {
+    if (productList[j].id === selectedItemId) {
       selectedProduct = productList[j];
       break;
     }
@@ -830,12 +830,12 @@ addButton.addEventListener("click", function () {
     const item = document.getElementById(selectedProduct["id"]);
     if (item) {
       const quantityElement = item.querySelector(".quantity-number");
-      const newQty = parseInt(quantityElement["textContent"]) + 1;
+      const newQuantity = parseInt(quantityElement["textContent"]) + 1;
       if (
-        newQty <=
+        newQuantity <=
         selectedProduct.quantity + parseInt(quantityElement.textContent)
       ) {
-        quantityElement.textContent = newQty;
+        quantityElement.textContent = newQuantity;
         selectedProduct["quantity"]--;
       } else {
         alert("재고가 부족합니다.");
@@ -868,44 +868,44 @@ addButton.addEventListener("click", function () {
       selectedProduct.quantity--;
     }
     calculateCartTotals();
-    lastSelectedItem = selItem;
+    lastSelectedItem = selectedItemId;
   }
 });
 cartDisplay.addEventListener("click", function (event) {
-  const tgt = event.target;
+  const target = event.target;
   if (
-    tgt.classList.contains("quantity-change") ||
-    tgt.classList.contains("remove-item")
+    target.classList.contains("quantity-change") ||
+    target.classList.contains("remove-item")
   ) {
-    const prodId = tgt.dataset.productId;
-    const itemElem = document.getElementById(prodId);
+    const productId = target.dataset.productId;
+    const cartItemElement = document.getElementById(productId);
     let prod = null;
 
     for (let prdIdx = 0; prdIdx < productList.length; prdIdx++) {
-      if (productList[prdIdx].id === prodId) {
+      if (productList[prdIdx].id === productId) {
         prod = productList[prdIdx];
         break;
       }
     }
-    if (tgt.classList.contains("quantity-change")) {
-      const qtyChange = parseInt(tgt.dataset.change);
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.quantity + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.quantity -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.quantity += currentQty;
-        itemElem.remove();
+    if (target.classList.contains("quantity-change")) {
+      const quantityChange = parseInt(target.dataset.change);
+      const quantityElement = cartItemElement.querySelector(".quantity-number");
+      const currentQuantity = parseInt(quantityElement.textContent);
+      const newQuantity = currentQuantity + quantityChange;
+      if (newQuantity > 0 && newQuantity <= prod.quantity + currentQuantity) {
+        quantityElement.textContent = newQuantity;
+        prod.quantity -= quantityChange;
+      } else if (newQuantity <= 0) {
+        prod.quantity += currentQuantity;
+        cartItemElement.remove();
       } else {
         alert("재고가 부족합니다.");
       }
-    } else if (tgt.classList.contains("remove-item")) {
-      const quantityElement = itemElem.querySelector(".quantity-number");
-      const remQty = parseInt(quantityElement.textContent);
-      prod.quantity += remQty;
-      itemElem.remove();
+    } else if (target.classList.contains("remove-item")) {
+      const quantityElement = cartItemElement.querySelector(".quantity-number");
+      const removedQuantity = parseInt(quantityElement.textContent);
+      prod.quantity += removedQuantity;
+      cartItemElement.remove();
     }
     if (prod && prod.quantity < LOW_STOCK_THRESHOLD) {
     }
