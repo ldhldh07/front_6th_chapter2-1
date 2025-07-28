@@ -47,6 +47,15 @@ const LIGHTNING_SALE_MAX_DELAY = 10000;
 const LIGHTNING_SALE_DURATION = 30000;
 const SUGGESTION_SALE_MAX_DELAY = 20000;
 
+function getProductDiscountRate(productId) {
+  if (productId === PRODUCT_ONE) return KEYBOARD_DISCOUNT_RATE;
+  if (productId === PRODUCT_TWO) return MOUSE_DISCOUNT_RATE;
+  if (productId === PRODUCT_THREE) return MONITOR_ARM_DISCOUNT_RATE;
+  if (productId === PRODUCT_FOUR) return SUGGESTION_DISCOUNT_RATE;
+  if (productId === PRODUCT_FIVE) return SPEAKER_DISCOUNT_RATE;
+  return 0;
+}
+
 let cartDisplay;
 function main() {
   var root;
@@ -458,25 +467,7 @@ function calculateCartTotals() {
         }
       });
       if (q >= QUANTITY_DISCOUNT_THRESHOLD) {
-        if (curItem.id === PRODUCT_ONE) {
-          disc = KEYBOARD_DISCOUNT_RATE;
-        } else {
-          if (curItem.id === PRODUCT_TWO) {
-            disc = MOUSE_DISCOUNT_RATE;
-          } else {
-            if (curItem.id === PRODUCT_THREE) {
-              disc = MONITOR_ARM_DISCOUNT_RATE;
-            } else {
-              if (curItem.id === PRODUCT_FOUR) {
-                disc = SUGGESTION_DISCOUNT_RATE;
-              } else {
-                if (curItem.id === PRODUCT_FIVE) {
-                  disc = SPEAKER_DISCOUNT_RATE;
-                }
-              }
-            }
-          }
-        }
+        disc = getProductDiscountRate(curItem.id);
         if (disc > 0) {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
