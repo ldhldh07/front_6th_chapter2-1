@@ -3,8 +3,8 @@ let bonusPoints = 0;
 let stockInfo;
 let itemCount;
 let lastSel;
-let sel;
-let addBtn;
+let productSelect;
+let addButton;
 let totalAmt = 0;
 const PRODUCT_ONE = "p1";
 const PRODUCT_TWO = "p2";
@@ -81,27 +81,28 @@ function main() {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
-  sel = document.createElement("select");
-  sel.id = "product-select";
+  productSelect = document.createElement("select");
+  productSelect.id = "product-select";
   gridContainer = document.createElement("div");
   leftColumn = document.createElement("div");
   leftColumn["className"] =
     "bg-white border border-gray-200 p-8 overflow-y-auto";
   selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  productSelect.className =
+    "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addBtn = document.createElement("button");
+  addButton = document.createElement("button");
   stockInfo = document.createElement("div");
-  addBtn.id = "add-to-cart";
+  addButton.id = "add-to-cart";
   stockInfo.id = "stock-status";
   stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
+  addButton.innerHTML = "Add to Cart";
+  addButton.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
+  selectorContainer.appendChild(productSelect);
+  selectorContainer.appendChild(addButton);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
   cartDisp = document.createElement("div");
@@ -294,7 +295,7 @@ function onUpdateSelectOptions() {
   let totalStock;
   let opt;
   let discountText;
-  sel.innerHTML = "";
+  productSelect.innerHTML = "";
   totalStock = 0;
   for (let idx = 0; idx < productList.length; idx++) {
     const _p = productList[idx];
@@ -348,13 +349,13 @@ function onUpdateSelectOptions() {
           opt.textContent = item.name + " - " + item.val + "원" + discountText;
         }
       }
-      sel.appendChild(opt);
+      productSelect.appendChild(opt);
     })();
   }
   if (totalStock < 50) {
-    sel.style.borderColor = "orange";
+    productSelect.style.borderColor = "orange";
   } else {
-    sel.style.borderColor = "";
+    productSelect.style.borderColor = "";
   }
 }
 function handleCalculateCartStuff() {
@@ -770,8 +771,8 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 main();
-addBtn.addEventListener("click", function () {
-  const selItem = sel.value;
+addButton.addEventListener("click", function () {
+  const selItem = productSelect.value;
 
   let hasItem = false;
   for (let idx = 0; idx < productList.length; idx++) {
