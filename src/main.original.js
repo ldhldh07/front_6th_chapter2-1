@@ -2,7 +2,7 @@ let productList;
 let bonusPoints = 0;
 let stockInformation;
 let itemCount;
-let lastSel;
+let lastSelectedItem;
 let productSelect;
 let addButton;
 let totalAmount = 0;
@@ -25,7 +25,7 @@ function main() {
   let lightningDelay;
   totalAmount = 0;
   itemCount = 0;
-  lastSel = null;
+  lastSelectedItem = null;
   productList = [
     {
       id: PRODUCT_ONE,
@@ -261,11 +261,11 @@ function main() {
     setInterval(function () {
       if (cartDisplay.children.length === 0) {
       }
-      if (lastSel) {
+      if (lastSelectedItem) {
         let suggest = null;
 
         for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSel) {
+          if (productList[k].id !== lastSelectedItem) {
             if (productList[k].q > 0) {
               if (!productList[k].suggestSale) {
                 suggest = productList[k];
@@ -360,7 +360,7 @@ function onUpdateSelectOptions() {
 }
 function handleCalculateCartStuff() {
   let cartItems;
-  let subTot;
+  let subtotal;
   let itemDiscounts;
   let lowStockItems;
   let idx;
@@ -383,7 +383,7 @@ function handleCalculateCartStuff() {
   totalAmount = 0;
   itemCount = 0;
   cartItems = cartDisplay.children;
-  subTot = 0;
+  subtotal = 0;
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < productList.length; idx++) {
@@ -408,7 +408,7 @@ function handleCalculateCartStuff() {
       itemTot = curItem.val * q;
       disc = 0;
       itemCount += q;
-      subTot += itemTot;
+      subtotal += itemTot;
       const itemDiv = cartItems[i];
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(function (elem) {
@@ -444,12 +444,12 @@ function handleCalculateCartStuff() {
     })();
   }
   let discRate = 0;
-  var originalTotal = subTot;
+  var originalTotal = subtotal;
   if (itemCount >= 30) {
-    totalAmount = (subTot * 75) / 100;
+    totalAmount = (subtotal * 75) / 100;
     discRate = 25 / 100;
   } else {
-    discRate = (subTot - totalAmount) / subTot;
+    discRate = (subtotal - totalAmount) / subtotal;
   }
 
   const today = new Date();
@@ -471,7 +471,7 @@ function handleCalculateCartStuff() {
     "🛍️ " + itemCount + " items in cart";
   summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
-  if (subTot > 0) {
+  if (subtotal > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
       for (let j = 0; j < productList.length; j++) {
@@ -494,8 +494,8 @@ function handleCalculateCartStuff() {
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+                   <span>Subtotal</span>
+           <span>₩${subtotal.toLocaleString()}</span>
       </div>
     `;
 
@@ -830,7 +830,7 @@ addButton.addEventListener("click", function () {
       itemToAdd.q--;
     }
     handleCalculateCartStuff();
-    lastSel = selItem;
+    lastSelectedItem = selItem;
   }
 });
 cartDisplay.addEventListener("click", function (event) {
