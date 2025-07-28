@@ -684,20 +684,10 @@ function renderBonusPoints() {
   }
 };
 function getStockTotal() {
-  let totalSum;
-  let i;
-  let currentProduct;
-  totalSum = 0;
-  for (i = 0; i < productList.length; i++) {
-    currentProduct = productList[i];
-    totalSum += currentProduct.quantity;
-  }
-  return totalSum;
+  return productList.reduce((sum, product) => sum + product.quantity, 0);
 }
-const updateStockInformation = function () {
-  let infoMsg;
-  let messageOptimizer;
-  infoMsg = "";
+function updateStockInformation() {
+  let infoMsg = "";
   const totalStock = getStockTotal();
 
   productList.forEach(function (item) {
@@ -711,7 +701,7 @@ const updateStockInformation = function () {
     }
   });
   stockInformation.textContent = infoMsg;
-};
+}
 function updatePricesInCart() {
   let totalCount = 0,
     j = 0;
