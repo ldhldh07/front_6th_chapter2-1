@@ -413,32 +413,17 @@ function updateSelectOptions() {
   }
 }
 function calculateCartTotals() {
-  let cartItems;
   let subtotal;
-  let itemDiscounts;
-  let lowStockItems;
-  let index;
-  var originalTotal;
-  let bulkDisc;
-  let itemDisc;
   let savedAmount;
-  let summaryDetails;
-  let totalDiv;
-  let loyaltyPointsDiv;
   let earnedPoints;
-  let discountInfoDiv;
-  let itemCountElement;
   let previousCount;
   let stockMsg;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
   totalAmount = 0;
   itemCount = 0;
-  cartItems = cartDisplay.children;
+  const cartItems = cartDisplay.children;
   subtotal = 0;
-  itemDiscounts = [];
-  lowStockItems = getLowStockItems();
+  const itemDiscounts = [];
+  const lowStockItems = getLowStockItems();
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       const product = findProductById(cartItems[i].id);
@@ -469,7 +454,7 @@ function calculateCartTotals() {
     })();
   }
   let discRate = 0;
-  var originalTotal = subtotal;
+  const originalTotal = subtotal;
   if (itemCount >= BULK_DISCOUNT_THRESHOLD) {
     totalAmount = subtotal * (1 - BULK_DISCOUNT_RATE);
     discRate = BULK_DISCOUNT_RATE;
@@ -494,7 +479,7 @@ function calculateCartTotals() {
   }
   document.getElementById("item-count").textContent =
     "🛍️ " + itemCount + " items in cart";
-  summaryDetails = document.getElementById("summary-details");
+  const summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subtotal > 0) {
     for (let i = 0; i < cartItems.length; i++) {
@@ -552,11 +537,11 @@ function calculateCartTotals() {
       </div>
     `;
   }
-  totalDiv = cartTotalElement.querySelector(".text-2xl");
+  const totalDiv = cartTotalElement.querySelector(".text-2xl");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
   }
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
+  const loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
     earnedPoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
     if (earnedPoints > 0) {
@@ -567,7 +552,7 @@ function calculateCartTotals() {
       loyaltyPointsDiv.style.display = "block";
     }
   }
-  discountInfoDiv = document.getElementById("discount-info");
+  const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
 
   if (discRate > 0 && totalAmount > 0) {
@@ -582,7 +567,7 @@ function calculateCartTotals() {
       </div>
     `;
   }
-  itemCountElement = document.getElementById("item-count");
+  const itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = "🛍️ " + itemCount + " items in cart";
