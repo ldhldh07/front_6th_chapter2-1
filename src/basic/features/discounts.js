@@ -3,20 +3,13 @@
  * 상품별, 대량구매, 화요일 할인 전략 및 UI 관리
  */
 
-// Discounts constants
-const PRODUCT_ONE = 'p1';
-const PRODUCT_TWO = 'p2'; 
-const PRODUCT_THREE = 'p3';
-const PRODUCT_FOUR = 'p4';
-const PRODUCT_FIVE = 'p5';
-
-const KEYBOARD_DISCOUNT_RATE = 0.1;
-const MOUSE_DISCOUNT_RATE = 0.15;
-const MONITOR_ARM_DISCOUNT_RATE = 0.2;
-const SPEAKER_DISCOUNT_RATE = 0.25;
-const SUGGESTION_DISCOUNT_RATE = 0.05;
-const BULK_DISCOUNT_THRESHOLD = 30;
-const BULK_DISCOUNT_RATE = 0.25;
+// Constants import
+import { 
+  PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
+  KEYBOARD_DISCOUNT_RATE, MOUSE_DISCOUNT_RATE, MONITOR_ARM_DISCOUNT_RATE, 
+  SPEAKER_DISCOUNT_RATE, SUGGESTION_DISCOUNT_RATE, 
+  BULK_DISCOUNT_THRESHOLD, BULK_DISCOUNT_RATE 
+} from '../constants.js';
 
 // ==================== Discount Strategies ====================
 
@@ -113,8 +106,9 @@ export const updateTuesdayUI = (isTuesday) => {
   if (tuesdaySpecial) {
     if (isTuesday) {
       tuesdaySpecial.classList.remove("hidden");
-    } else {
-      tuesdaySpecial.classList.add("hidden");
+      return;
     }
+    
+    tuesdaySpecial.classList.add("hidden");
   }
 }; 

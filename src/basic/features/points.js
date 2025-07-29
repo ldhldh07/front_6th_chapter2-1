@@ -3,17 +3,13 @@
  * 포인트 계산 로직과 UI 관리
  */
 
-// Points constants
-const POINTS_CALCULATION_BASE = 1000;
-const COMBO_BONUS_POINTS = 50;
-const FULL_SET_BONUS_POINTS = 100;
-const SMALL_BULK_BONUS_POINTS = 20;
-const MEDIUM_BULK_BONUS_POINTS = 50;
-const LARGE_BULK_BONUS_POINTS = 100;
-const SMALL_BULK_THRESHOLD = 10;
-const MEDIUM_BULK_THRESHOLD = 20;
-const LARGE_BULK_THRESHOLD = 30;
-const TUESDAY_DAY_NUMBER = 2;
+// Constants import
+import { 
+  POINTS_CALCULATION_BASE, COMBO_BONUS_POINTS, FULL_SET_BONUS_POINTS,
+  SMALL_BULK_BONUS_POINTS, MEDIUM_BULK_BONUS_POINTS, LARGE_BULK_BONUS_POINTS,
+  SMALL_BULK_THRESHOLD, MEDIUM_BULK_THRESHOLD, LARGE_BULK_THRESHOLD,
+  TUESDAY_DAY_NUMBER 
+} from '../constants.js';
 
 // ==================== Points Calculators ====================
 
@@ -126,10 +122,11 @@ export const displayPointsInfo = (finalPoints, pointsDetail) => {
       pointsDetail.join(", ") +
       "</div>";
     pointsTag.style.display = "block";
-  } else {
-    pointsTag.textContent = "적립 포인트: 0p";
-    pointsTag.style.display = "block";
+    return;
   }
+  
+  pointsTag.textContent = "적립 포인트: 0p";
+  pointsTag.style.display = "block";
 };
 
 /**

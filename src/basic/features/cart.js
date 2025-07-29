@@ -1,10 +1,5 @@
-import { applyBulkDiscount, calculateTuesdayDiscount, getProductDiscountRate, updateTuesdayUI } from './discounts.js';
-
-// Cart constants
-const QUANTITY_DISCOUNT_THRESHOLD = 10;
-const PRODUCT_ONE = 'p1';
-const PRODUCT_TWO = 'p2';
-const PRODUCT_THREE = 'p3';
+import { applyBulkDiscount, calculateTuesdayDiscount, getProductDiscountRate } from './discounts.js';
+import { QUANTITY_DISCOUNT_THRESHOLD, PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE } from '../constants.js';
 
 /**
  * 장바구니 아이템의 스타일을 업데이트합니다
@@ -13,9 +8,9 @@ const PRODUCT_THREE = 'p3';
  */
 const updateItemStyles = (cartItem, quantity) => {
   const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
-  priceElements.forEach(function (elem) {
-    if (elem.classList.contains("text-lg")) {
-      elem.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
+  priceElements.forEach(elemnet => {
+    if (elemnet.classList.contains("text-lg")) {
+        elemnet.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
     }
   });
 };
@@ -76,7 +71,6 @@ export const getCartProductTypes = (cartItems, productList) => {
 export const calculateCompleteCartTotals = (cartItems, productList, constants) => {
   const { TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE, POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD } = constants;
   
-  // ✅ let 제거: reduce로 한번에 계산
   const cartItemsData = Array.from(cartItems).map(cartItem => calculateItemData(cartItem, productList));
   
   const { totalAmount: initialTotalAmount, itemCount, subtotal, itemDiscounts } = cartItemsData.reduce(
@@ -198,8 +192,8 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, de
   const {
     updateItemStyles,
     updateTuesdayUI,
-    cartSummaryTemplate,
-    discountInfoTemplate,
+    cartSummary,
+    discountInfo,
     renderBonusPoints,
     calculateBasePoints,
     calculateTuesdayBonus,
@@ -241,7 +235,7 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, de
       `;
     }).join('');
 
-    summaryDetails.innerHTML = cartSummaryTemplate(summaryItems, subtotal);
+    summaryDetails.innerHTML = cartSummary(summaryItems, subtotal);
 
     // 개별 상품 할인 정보 표시
     if (itemDiscounts.length > 0) {
@@ -283,7 +277,7 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, de
   // 할인 정보 표시
   if (discRate > 0 && totalAmount > 0) {
     const savedAmount = originalTotal - totalAmount;
-    discountInfoElement.innerHTML = discountInfoTemplate(discRate, savedAmount);
+    discountInfoElement.innerHTML = discountInfo(discRate, savedAmount);
   }
 
   // === 7. 아이템 개수 및 상태 표시 ===
@@ -327,8 +321,7 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
     productList,
     appState,
     domRefs,
-    functions: { findProductById, createElement, calculateCartTotals },
-    templates: { cartItemTemplate }
+    functions: { findProductById, calculateCartTotals },
   } = dependencies;
 
   const selectedProduct = findProductById(selectedItemId, productList);
@@ -356,16 +349,20 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
       alert("재고가 부족합니다.");
       return { success: false, reason: 'insufficient_stock' };
     }
-  } else {
-    // 새 아이템 생성
-    const newItem = createElement("div", {
-      id: selectedProduct.id,
-      className: "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0",
-      innerHTML: cartItemTemplate(selectedProduct)
-    });
-    domRefs.cartDisplay.appendChild(newItem);
-    selectedProduct.quantity--;
+    
+    calculateCartTotals();
+    appState.lastSelectedItem = selectedItemId;
+    return { success: true, product: selectedProduct };
   }
+  
+  // 새 아이템 생성 (HTML 기반)
+  const newItemHTML = `
+    <div id="${selectedProduct.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
+      ${dependencies.templates.cartItem(selectedProduct)}
+    </div>
+  `;
+  domRefs.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
+  selectedProduct.quantity--;
 
   calculateCartTotals();
   appState.lastSelectedItem = selectedItemId;
@@ -384,7 +381,7 @@ export const handleCartActions = (event, dependencies) => {
     productList,
     domRefs,
     constants: { TOTAL_STOCK_WARNING_THRESHOLD },
-    functions: { findProductById, calculateCartTotals, updateSelectOptions, createElement }
+    functions: { findProductById, calculateCartTotals, updateSelectOptions }
   } = dependencies;
 
   const target = event.target;
@@ -419,7 +416,13 @@ export const handleCartActions = (event, dependencies) => {
       alert("재고가 부족합니다.");
       return { success: false, reason: 'insufficient_stock' };
     }
-  } else if (isRemoveButton) {
+    
+    calculateCartTotals();
+    updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
+    return { success: true, action: 'quantity_change', product };
+  }
+  
+  if (isRemoveButton) {
     const quantityElement = cartItemElement.querySelector(".quantity-number");
     const removedQuantity = parseInt(quantityElement.textContent);
     product.quantity += removedQuantity;
@@ -427,44 +430,8 @@ export const handleCartActions = (event, dependencies) => {
   }
 
   calculateCartTotals();
-  updateSelectOptions(productList, domRefs.productSelect, createElement, TOTAL_STOCK_WARNING_THRESHOLD);
+  updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
   
   return { success: true, action: isQuantityButton ? 'quantity_change' : 'remove', product };
 };
 
-// ==================== Templates ====================
-
-/**
- * 장바구니 아이템 템플릿
- * @param {Object} selectedProduct - 선택된 상품 정보
- * @returns {string} HTML 템플릿
- */
-export const cartItemTemplate = (selectedProduct) => {
-  const saleIcon = selectedProduct.onSale && selectedProduct.suggestSale ? "⚡💝" : 
-                   selectedProduct.onSale ? "⚡" : 
-                   selectedProduct.suggestSale ? "💝" : "";
-  
-  const priceDisplay = selectedProduct.onSale || selectedProduct.suggestSale ? 
-    `<span class="line-through text-gray-400">₩${selectedProduct.originalPrice.toLocaleString()}</span> <span class="${selectedProduct.onSale && selectedProduct.suggestSale ? "text-purple-600" : selectedProduct.onSale ? "text-red-500" : "text-blue-500"}">₩${selectedProduct.price.toLocaleString()}</span>` : 
-    `₩${selectedProduct.price.toLocaleString()}`;
-
-  return `
-<div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-  <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-</div>
-<div>
-  <h3 class="text-base font-normal mb-1 tracking-tight">${saleIcon}${selectedProduct.name}</h3>
-  <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-  <p class="text-xs text-black mb-3">${priceDisplay}</p>
-  <div class="flex items-center gap-4">
-    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="-1">−</button>
-    <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="1">+</button>
-  </div>
-</div>
-<div class="text-right">
-  <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
-  <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${selectedProduct.id}">Remove</a>
-</div>
-`;
-}; 

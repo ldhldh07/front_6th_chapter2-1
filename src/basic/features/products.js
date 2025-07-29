@@ -3,24 +3,11 @@
  * 상품 데이터 관리, UI 처리, 템플릿 관리
  */
 
-// Products constants
-const PRODUCT_ONE = 'p1';
-const PRODUCT_TWO = 'p2'; 
-const PRODUCT_THREE = 'p3';
-const PRODUCT_FOUR = 'p4';
-const PRODUCT_FIVE = 'p5';
-
-const INITIAL_PRODUCT_DATA = [
-  { id: PRODUCT_ONE, name: '버그 없애는 키보드', price: 10000, originalPrice: 10000, quantity: 50, onSale: false, suggestSale: false },
-  { id: PRODUCT_TWO, name: '생산성 폭발 마우스', price: 20000, originalPrice: 20000, quantity: 30, onSale: false, suggestSale: false },
-  { id: PRODUCT_THREE, name: '거북목 탈출 모니터암', price: 30000, originalPrice: 30000, quantity: 20, onSale: false, suggestSale: false },
-  { id: PRODUCT_FOUR, name: '에러 방지 노트북 파우치', price: 15000, originalPrice: 15000, quantity: 0, onSale: false, suggestSale: false },
-  { id: PRODUCT_FIVE, name: '코딩할 때 듣는 Lo-Fi 스피커', price: 25000, originalPrice: 25000, quantity: 10, onSale: false, suggestSale: false }
-];
-
-const SUPER_SALE_TEXT = '25% SUPER SALE!';
-const LIGHTNING_SALE_TEXT = '20% SALE!';
-const SUGGESTION_SALE_TEXT = '5% 추천할인!';
+// Constants import
+import { 
+  INITIAL_PRODUCT_DATA, 
+  SUPER_SALE_TEXT, LIGHTNING_SALE_TEXT, SUGGESTION_SALE_TEXT 
+} from '../constants.js';
 
 // ==================== Product Data Management ====================
 
@@ -35,10 +22,10 @@ export const initializeProducts = () => {
 /**
  * 상품 ID로 상품을 찾습니다
  * @param {string} productId - 찾을 상품 ID
- * @param {Array} productList - 상품 목록
- * @returns {Object|undefined} 찾은 상품 또는 undefined
+ * @param {Array} productList - 상품 목록 배열
+ * @returns {Object|undefined} 찾은 상품 객체 또는 undefined
  */
-export const findProduct = (productId, productList) => {
+export const findProductById = (productId, productList) => {
   return productList.find(product => product.id === productId);
 };
 
@@ -52,16 +39,6 @@ export const getLowStockProducts = (productList, threshold) => {
   return productList.filter(product => 
     product.quantity > 0 && product.quantity < threshold
   );
-};
-
-/**
- * 상품 ID로 상품을 찾습니다
- * @param {string} productId - 찾을 상품 ID
- * @param {Array} productList - 상품 목록 배열
- * @returns {Object|undefined} 찾은 상품 객체 또는 undefined
- */
-export const findProductById = (productId, productList) => {
-  return productList.find(product => product.id === productId);
 };
 
 // ==================== Product Options UI ====================
@@ -173,49 +150,24 @@ export const getProductDisplayInfo = (product) => {
 };
 
 /**
- * product select options를 업데이트합니다
+ * product select options를 업데이트합니다 (HTML 기반)
  * @param {Array} productList - 상품 목록
  * @param {Element} productSelectElement - select DOM element
- * @param {Function} createElement - DOM element 생성 함수
  * @param {number} totalStockWarningThreshold - 재고 경고 임계값
  */
-export const updateSelectOptions = (productList, productSelectElement, createElement, totalStockWarningThreshold) => {
+export const updateSelectOptions = (productList, productSelectElement, totalStockWarningThreshold) => {
   const totalStock = productList.reduce((sum, product) => sum + product.quantity, 0);
 
-  const options = productList.map(item => {
+  const optionsHTML = productList.map(item => {
     const optionData = getOptionData(item);
-    return createElement("option", {
-      value: item.id,
-      textContent: optionData.textContent,
-      className: optionData.className,
-      disabled: optionData.disabled
-    });
-  });
+    const disabledAttr = optionData.disabled ? ' disabled' : '';
+    const classAttr = optionData.className ? ` class="${optionData.className}"` : '';
+    
+    return `<option value="${item.id}"${disabledAttr}${classAttr}>${optionData.textContent}</option>`;
+  }).join('');
 
-  productSelectElement.replaceChildren(...options);
+  productSelectElement.innerHTML = optionsHTML;
   productSelectElement.style.borderColor = totalStock < totalStockWarningThreshold ? "orange" : "";
 };
 
-// ==================== Product Templates ====================
-
-/**
- * 상품 선택기 템플릿
- */
-export const productSelectorTemplate = `
-  <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
-    <div class="mb-6 pb-6 border-b border-gray-200">
-      <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3">
-        <!-- Options will be populated by JavaScript -->
-      </select>
-      <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">
-        Add to Cart
-      </button>
-      <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line">
-        <!-- Stock information will be populated by JavaScript -->
-      </div>
-    </div>
-    <div id="cart-items">
-      <!-- Cart items will be populated by JavaScript -->
-    </div>
-  </div>
-`; 
+// ==================== Templates는 render.js로 이동 완료 ==================== 

@@ -31,8 +31,7 @@ export const setupEventTimers = (config) => {
       updatePricesInCart,
       findProductById,
       getProductDisplayInfo,
-      calculateCartTotals,
-      createElement
+      calculateCartTotals
     }
   } = config;
 
@@ -48,7 +47,7 @@ export const setupEventTimers = (config) => {
         );
         luckyItem.onSale = true;
         alert("⚡번개세일! " + luckyItem.name + "이(가) 20% 할인 중입니다!");
-        updateSelectOptions(productList, domRefs.productSelect, createElement, TOTAL_STOCK_WARNING_THRESHOLD);
+        updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
         updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
       }
     }, LIGHTNING_SALE_DURATION);
@@ -77,7 +76,7 @@ export const setupEventTimers = (config) => {
             suggestedProduct.price * (1 - SUGGESTION_DISCOUNT_RATE)
           );
           suggestedProduct.suggestSale = true;
-          updateSelectOptions(productList, domRefs.productSelect, createElement, TOTAL_STOCK_WARNING_THRESHOLD);
+          updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
           updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
         }
       }
