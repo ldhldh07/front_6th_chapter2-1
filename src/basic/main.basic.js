@@ -12,32 +12,35 @@ const {
   SUGGESTION_DISCOUNT_RATE, SUGGESTION_SALE_MAX_DELAY, SUGGESTION_INTERVAL_MS
 } = constants;
 
-// 전역 상태 변수들
-let productList;
-let bonusPoints = 0;
-let stockInformation;
-let itemCount;
-let lastSelectedItem;
-let productSelect;
-let addButton;
-let totalAmount = 0;
+const appState = {
+  totalAmount: 0,
+  itemCount: 0,
+  lastSelectedItem: null,
+  bonusPoints: 0
+};
 
+// 데이터 상태 객체 (let → const 개선)
+const dataState = {
+  productList: null
+};
 
+// DOM 참조 객체 (let → const 개선)
+const domRefs = {
+  stockInformation: null,
+  productSelect: null,
+  addButton: null,
+  cartDisplay: null,
+  cartTotalElement: null
+};
 
-
-
-
-
-let cartDisplay;
-let cartTotalElement;
 const initializeAppState = () => {
-  totalAmount = 0;
-  itemCount = 0;
-  lastSelectedItem = null;
+  appState.totalAmount = 0;
+  appState.itemCount = 0;
+  appState.lastSelectedItem = null;
 };
 
 const initializeProductData = () => {
-  productList = initializeProducts();
+  dataState.productList = initializeProducts();
 };
 
 const main = () => {
@@ -56,33 +59,33 @@ const createDOMStructure = (root) => {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
-  productSelect = document.createElement("select");
-  productSelect.id = "product-select";
+  domRefs.productSelect = document.createElement("select");
+  domRefs.productSelect.id = "product-select";
   const gridContainer = document.createElement("div");
   const leftColumn = document.createElement("div");
   leftColumn["className"] =
     "bg-white border border-gray-200 p-8 overflow-y-auto";
   const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  productSelect.className =
+  domRefs.productSelect.className =
     "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addButton = document.createElement("button");
-  stockInformation = document.createElement("div");
-  addButton.id = "add-to-cart";
-  stockInformation.id = "stock-status";
-  stockInformation.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addButton.innerHTML = "Add to Cart";
-  addButton.className =
+  domRefs.addButton = document.createElement("button");
+  domRefs.stockInformation = document.createElement("div");
+  domRefs.addButton.id = "add-to-cart";
+  domRefs.stockInformation.id = "stock-status";
+  domRefs.stockInformation.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+  domRefs.addButton.innerHTML = "Add to Cart";
+  domRefs.addButton.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(productSelect);
-  selectorContainer.appendChild(addButton);
-  selectorContainer.appendChild(stockInformation);
+  selectorContainer.appendChild(domRefs.productSelect);
+  selectorContainer.appendChild(domRefs.addButton);
+  selectorContainer.appendChild(domRefs.stockInformation);
   leftColumn.appendChild(selectorContainer);
-  cartDisplay = document.createElement("div");
-  leftColumn.appendChild(cartDisplay);
-  cartDisplay.id = "cart-items";
+  domRefs.cartDisplay = document.createElement("div");
+  leftColumn.appendChild(domRefs.cartDisplay);
+  domRefs.cartDisplay.id = "cart-items";
   const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
@@ -114,7 +117,7 @@ const createDOMStructure = (root) => {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  cartTotalElement = rightColumn.querySelector("#cart-total");
+  domRefs.cartTotalElement = rightColumn.querySelector("#cart-total");
   const manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -217,24 +220,20 @@ const createDOMStructure = (root) => {
 };
 
 const calculateCartTotals = () => {
-  let savedAmount;
-  let earnedPoints;
-  let previousCount;
-  totalAmount = 0;
-  itemCount = 0;
-  const cartItems = cartDisplay.children;
-  let subtotal = 0;
+  appState.totalAmount = 0;
+  appState.itemCount = 0;
+  const cartItems = domRefs.cartDisplay.children;
   const itemDiscounts = [];
   
-  Array.from(cartItems).forEach(cartItem => {
-    const itemData = calculateItemData(cartItem, productList);
+  // subtotal을 reduce 패턴으로 개선
+  const subtotal = Array.from(cartItems).reduce((sum, cartItem) => {
+    const itemData = calculateItemData(cartItem, dataState.productList);
     const product = itemData.product;
     const quantity = itemData.quantity;
     const itemTotal = itemData.itemTotal;
     const discount = itemData.discount;
 
-    itemCount += quantity;
-    subtotal += itemTotal;
+    appState.itemCount += quantity;
 
     const itemDiv = cartItem;
     updateItemStyles(itemDiv, quantity);
@@ -242,28 +241,31 @@ const calculateCartTotals = () => {
     if (discount > 0) {
       itemDiscounts.push({ name: product.name, discount: discount * 100 });
     }
-    totalAmount += itemTotal * (1 - discount);
-  });
+    appState.totalAmount += itemTotal * (1 - discount);
+    
+    return sum + itemTotal;
+  }, 0);
+  
   const originalTotal = subtotal;
   
   // 대량구매 할인 적용
-  const bulkDiscount = applyBulkDiscount(itemCount, subtotal);
+  const bulkDiscount = applyBulkDiscount(appState.itemCount, subtotal);
   if (bulkDiscount) {
-    totalAmount = bulkDiscount.totalAmount;
+    appState.totalAmount = bulkDiscount.totalAmount;
   }
   
   // 화요일 할인 적용
-  const tuesdayDiscount = calculateTuesdayDiscount(totalAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
-  totalAmount = tuesdayDiscount.totalAmount;
+  const tuesdayDiscount = calculateTuesdayDiscount(appState.totalAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
+  appState.totalAmount = tuesdayDiscount.totalAmount;
   const discRate = tuesdayDiscount.discRate;
   updateTuesdayUI(tuesdayDiscount.isTuesday);
   document.getElementById("item-count").textContent =
-    "🛍️ " + itemCount + " items in cart";
+    "🛍️ " + appState.itemCount + " items in cart";
   const summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subtotal > 0) {
     const summaryItems = Array.from(cartItems).map(cartItem => {
-      const itemData = calculateItemData(cartItem, productList);
+      const itemData = calculateItemData(cartItem, dataState.productList);
       const product = itemData.product;
       const quantity = itemData.quantity;
       const itemTotal = itemData.itemTotal;
@@ -304,13 +306,13 @@ const calculateCartTotals = () => {
       </div>
     `;
   }
-  const totalDiv = cartTotalElement.querySelector(".text-2xl");
+  const totalDiv = domRefs.cartTotalElement.querySelector(".text-2xl");
   if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
+    totalDiv.textContent = "₩" + Math.round(appState.totalAmount).toLocaleString();
   }
   const loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    earnedPoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
+    const earnedPoints = Math.floor(appState.totalAmount / POINTS_CALCULATION_BASE);
     loyaltyPointsDiv.textContent = earnedPoints > 0 
       ? `적립 포인트: ${earnedPoints}p` 
       : "적립 포인트: 0p";
@@ -319,8 +321,8 @@ const calculateCartTotals = () => {
   const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
 
-  if (discRate > 0 && totalAmount > 0) {
-    savedAmount = originalTotal - totalAmount;
+  if (discRate > 0 && appState.totalAmount > 0) {
+    const savedAmount = originalTotal - appState.totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -333,13 +335,13 @@ const calculateCartTotals = () => {
   }
   const itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = "🛍️ " + itemCount + " items in cart";
-    if (previousCount !== itemCount) {
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    itemCountElement.textContent = "🛍️ " + appState.itemCount + " items in cart";
+    if (previousCount !== appState.itemCount) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  const stockMsg = productList
+  const stockMsg = dataState.productList
     .filter(item => item.quantity < LOW_STOCK_THRESHOLD)
     .map(item => item.quantity > 0 
       ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
@@ -347,7 +349,7 @@ const calculateCartTotals = () => {
     )
     .join('\n');
 
-  stockInformation.textContent = stockMsg;
+  domRefs.stockInformation.textContent = stockMsg;
 
   renderBonusPoints();
 };
@@ -356,8 +358,8 @@ const setupEventTimers = () => {
   const lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
   setTimeout(() => {
     setInterval(function () {
-      const luckyIndex = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIndex];
+      const luckyIndex = Math.floor(Math.random() * dataState.productList.length);
+      const luckyItem = dataState.productList[luckyIndex];
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         luckyItem.price = Math.round(
           luckyItem.originalPrice * (1 - LIGHTNING_SALE_DISCOUNT_RATE)
@@ -372,12 +374,12 @@ const setupEventTimers = () => {
   
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisplay.children.length === 0) {
+      if (domRefs.cartDisplay.children.length === 0) {
         return;
       }
-      if (lastSelectedItem) {
-        const suggest = productList.find(product => 
-          product.id !== lastSelectedItem && 
+      if (appState.lastSelectedItem) {
+        const suggest = dataState.productList.find(product => 
+          product.id !== appState.lastSelectedItem && 
           product.quantity > 0 && 
           !product.suggestSale
         );
@@ -403,10 +405,10 @@ const setupEventTimers = () => {
 
 
 const updateSelectOptions = () => {
-  productSelect.innerHTML = "";
+  domRefs.productSelect.innerHTML = "";
   
-  const totalStock = productList.reduce((sum, product) => sum + product.quantity, 0);
-  productList.forEach(item => {
+  const totalStock = dataState.productList.reduce((sum, product) => sum + product.quantity, 0);
+  dataState.productList.forEach(item => {
     const option = document.createElement("option");
       option.value = item.id;
       
@@ -414,9 +416,9 @@ const updateSelectOptions = () => {
       option.textContent = optionData.textContent;
       option.className = optionData.className;
       option.disabled = optionData.disabled;
-      productSelect.appendChild(option);
+      domRefs.productSelect.appendChild(option);
     });
-  productSelect.style.borderColor = totalStock < TOTAL_STOCK_WARNING_THRESHOLD ? "orange" : "";
+  domRefs.productSelect.style.borderColor = totalStock < TOTAL_STOCK_WARNING_THRESHOLD ? "orange" : "";
 };
 
 
@@ -433,53 +435,55 @@ const updateSelectOptions = () => {
 
 const renderBonusPoints = () => {
   // 장바구니가 비어있으면 포인트 UI 숨김
-  hidePointsIfEmpty(cartDisplay.children.length);
-  if (cartDisplay.children.length === 0) return;
+  hidePointsIfEmpty(domRefs.cartDisplay.children.length);
+  if (domRefs.cartDisplay.children.length === 0) return;
   
   // 기본 포인트 계산
-  const basePoints = calculateBasePoints(totalAmount);
-  let finalPoints = 0;
+  const basePoints = calculateBasePoints(appState.totalAmount);
   const pointsDetail = [];
 
   // 기본 포인트 적용
-  if (basePoints > 0) {
-    finalPoints = basePoints;
+  const initialPoints = basePoints > 0 ? (() => {
     pointsDetail.push("기본: " + basePoints + "p");
-  }
+    return basePoints;
+  })() : 0;
   
   // 화요일 보너스 계산
   const tuesdayBonus = calculateTuesdayBonus(basePoints);
-  if (tuesdayBonus.applied) {
-    finalPoints = tuesdayBonus.points;
+  const tuesdayPoints = tuesdayBonus.applied ? (() => {
     pointsDetail.push(tuesdayBonus.description);
-  }
+    return tuesdayBonus.points;
+  })() : initialPoints;
   
   // 콤보 보너스 계산
-  const productTypes = getCartProductTypes(cartDisplay.children, productList);
+  const productTypes = getCartProductTypes(domRefs.cartDisplay.children, dataState.productList);
   const comboBonuses = calculateComboBonuses(productTypes);
-  comboBonuses.forEach(bonus => {
-    finalPoints += bonus.points;
+  const comboPoints = comboBonuses.reduce((sum, bonus) => {
     pointsDetail.push(bonus.description);
-  });
+    return sum + bonus.points;
+  }, 0);
   
   // 대량구매 보너스 계산
-  const bulkBonus = calculateBulkBonus(itemCount);
-  if (bulkBonus) {
-    finalPoints += bulkBonus.points;
+  const bulkBonus = calculateBulkBonus(appState.itemCount);
+  const bulkPoints = bulkBonus ? (() => {
     pointsDetail.push(bulkBonus.description);
-  }
+    return bulkBonus.points;
+  })() : 0;
+  
+  // 최종 포인트 합계 (const 개선)
+  const finalPoints = tuesdayPoints + comboPoints + bulkPoints;
   
   // 전역 상태 업데이트 및 UI 표시
-  bonusPoints = finalPoints;
+  appState.bonusPoints = finalPoints;
   displayPointsInfo(finalPoints, pointsDetail);
 };
 
 const updatePricesInCart = () => {
-  const cartItems = cartDisplay.children;
+  const cartItems = domRefs.cartDisplay.children;
   
   Array.from(cartItems).forEach(cartItem => {
     const itemId = cartItem.id;
-    const product = productList.find(product => product.id === itemId);
+    const product = dataState.productList.find(product => product.id === itemId);
     if (product) {
       const priceDiv = cartItem.querySelector(".text-lg");
       const nameDiv = cartItem.querySelector("h3");
@@ -516,9 +520,9 @@ const updatePricesInCart = () => {
   calculateCartTotals();
 };
 main();
-addButton.addEventListener("click", function () {
-  const selectedItemId = productSelect.value;
-  const selectedProduct = productList.find(product => product.id === selectedItemId);
+domRefs.addButton.addEventListener("click", function () {
+  const selectedItemId = domRefs.productSelect.value;
+  const selectedProduct = dataState.productList.find(product => product.id === selectedItemId);
 
   if (!selectedItemId || !selectedProduct) {
     return;
@@ -562,14 +566,14 @@ addButton.addEventListener("click", function () {
           <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${selectedProduct.id}">Remove</a>
         </div>
       `;
-      cartDisplay.appendChild(newItem);
+      domRefs.cartDisplay.appendChild(newItem);
       selectedProduct.quantity--;
     }
     calculateCartTotals();
-    lastSelectedItem = selectedItemId;
+    appState.lastSelectedItem = selectedItemId;
   }
 });
-cartDisplay.addEventListener("click", function (event) {
+domRefs.cartDisplay.addEventListener("click", function (event) {
   const target = event.target;
   if (
     target.classList.contains("quantity-change") ||
@@ -577,7 +581,7 @@ cartDisplay.addEventListener("click", function (event) {
   ) {
     const productId = target.dataset.productId;
     const cartItemElement = document.getElementById(productId);
-    const prod = productList.find(product => product.id === productId);
+    const prod = dataState.productList.find(product => product.id === productId);
     
     if (!prod) return;
     
