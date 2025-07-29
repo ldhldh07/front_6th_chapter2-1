@@ -1,3 +1,25 @@
+// 🔥 Modern ES6 imports - Feature-First Architecture
+import * as constants from './constants/index.js';
+
+// 구조분해할당으로 필요한 상수들만 추출
+const {
+  // 상품 ID
+  PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
+  // 할인 시스템
+  QUANTITY_DISCOUNT_THRESHOLD, BULK_DISCOUNT_THRESHOLD, 
+  KEYBOARD_DISCOUNT_RATE, MOUSE_DISCOUNT_RATE, MONITOR_ARM_DISCOUNT_RATE,
+  SPEAKER_DISCOUNT_RATE, BULK_DISCOUNT_RATE, SUGGESTION_DISCOUNT_RATE,
+  TUESDAY_ADDITIONAL_DISCOUNT_RATE, LIGHTNING_SALE_DISCOUNT_RATE,
+  // 포인트 시스템
+  POINTS_CALCULATION_BASE, COMBO_BONUS_POINTS, FULL_SET_BONUS_POINTS,
+  SMALL_BULK_BONUS_POINTS, MEDIUM_BULK_BONUS_POINTS, LARGE_BULK_BONUS_POINTS,
+  SMALL_BULK_THRESHOLD, MEDIUM_BULK_THRESHOLD, LARGE_BULK_THRESHOLD,
+  // 기타
+  LOW_STOCK_THRESHOLD, TUESDAY_DAY_NUMBER, TOTAL_STOCK_WARNING_THRESHOLD,
+  LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_DURATION, SUGGESTION_SALE_MAX_DELAY
+} = constants;
+
+// 전역 상태 변수들
 let productList;
 let bonusPoints = 0;
 let stockInformation;
@@ -6,46 +28,6 @@ let lastSelectedItem;
 let productSelect;
 let addButton;
 let totalAmount = 0;
-const PRODUCT_ONE = "p1";
-const PRODUCT_TWO = "p2";
-const PRODUCT_THREE = "p3";
-const PRODUCT_FOUR = "p4";
-const PRODUCT_FIVE = "p5";
-
-// 할인 시스템 상수
-const QUANTITY_DISCOUNT_THRESHOLD = 10;
-const BULK_DISCOUNT_THRESHOLD = 30;
-const KEYBOARD_DISCOUNT_RATE = 0.1;
-const MOUSE_DISCOUNT_RATE = 0.15;
-const MONITOR_ARM_DISCOUNT_RATE = 0.2;
-const SPEAKER_DISCOUNT_RATE = 0.25;
-const BULK_DISCOUNT_RATE = 0.25;
-const SUGGESTION_DISCOUNT_RATE = 0.05;
-const TUESDAY_ADDITIONAL_DISCOUNT_RATE = 0.1;
-const LIGHTNING_SALE_DISCOUNT_RATE = 0.2;
-
-// 포인트 시스템 상수
-const POINTS_CALCULATION_BASE = 1000;
-const COMBO_BONUS_POINTS = 50;
-const FULL_SET_BONUS_POINTS = 100;
-const SMALL_BULK_BONUS_POINTS = 20;
-const MEDIUM_BULK_BONUS_POINTS = 50;
-const LARGE_BULK_BONUS_POINTS = 100;
-
-// 구매 수량 임계값
-const SMALL_BULK_THRESHOLD = 10;
-const MEDIUM_BULK_THRESHOLD = 20;
-const LARGE_BULK_THRESHOLD = 30;
-
-// 기타 상수
-const LOW_STOCK_THRESHOLD = 5;
-const TUESDAY_DAY_NUMBER = 2;
-const TOTAL_STOCK_WARNING_THRESHOLD = 50;
-
-// 타이밍 상수 (밀리초)
-const LIGHTNING_SALE_MAX_DELAY = 10000;
-const LIGHTNING_SALE_DURATION = 30000;
-const SUGGESTION_SALE_MAX_DELAY = 20000;
 
 const getProductDiscountRate = (productId) => {
   if (productId === PRODUCT_ONE) return KEYBOARD_DISCOUNT_RATE;
@@ -333,7 +315,7 @@ function main() {
     }, 60000);
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 }
-let sum;
+
 const updateSelectOptions = () => {
   productSelect.innerHTML = "";
   
@@ -611,7 +593,6 @@ function calculateCartTotals() {
     .join('\n');
   stockInformation.textContent = stockMsg;
 
-  updateStockInformation();
   renderBonusPoints();
 }
 
@@ -701,25 +682,7 @@ function renderBonusPoints() {
     }
   }
 };
-const getStockTotal = () => {
-  return productList.reduce((sum, product) => sum + product.quantity, 0);
-};
-const updateStockInformation = () => {
-  let infoMsg = "";
-  const totalStock = getStockTotal();
 
-  productList.forEach(function (item) {
-    if (item.quantity < LOW_STOCK_THRESHOLD) {
-      if (item.quantity > 0) {
-        infoMsg =
-          infoMsg + item.name + ": 재고 부족 (" + item.quantity + "개 남음)\n";
-      } else {
-        infoMsg = infoMsg + item.name + ": 품절\n";
-      }
-    }
-  });
-  stockInformation.textContent = infoMsg;
-};
 function updatePricesInCart() {
   const cartItems = cartDisplay.children;
   

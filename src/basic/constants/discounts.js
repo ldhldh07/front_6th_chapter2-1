@@ -1,0 +1,19 @@
+// 할인 시스템 상수
+export const QUANTITY_DISCOUNT_THRESHOLD = 10;
+export const BULK_DISCOUNT_THRESHOLD = 30;
+export const KEYBOARD_DISCOUNT_RATE = 0.1;
+export const MOUSE_DISCOUNT_RATE = 0.15;
+export const MONITOR_ARM_DISCOUNT_RATE = 0.2;
+export const SPEAKER_DISCOUNT_RATE = 0.25;
+export const BULK_DISCOUNT_RATE = 0.25;
+export const SUGGESTION_DISCOUNT_RATE = 0.05;
+export const TUESDAY_ADDITIONAL_DISCOUNT_RATE = 0.1;
+export const LIGHTNING_SALE_DISCOUNT_RATE = 0.2;
+
+// 날짜 관련
+export const TUESDAY_DAY_NUMBER = 2;
+
+// 타이밍 상수 (밀리초)
+export const LIGHTNING_SALE_MAX_DELAY = 10000;
+export const LIGHTNING_SALE_DURATION = 30000;
+export const SUGGESTION_SALE_MAX_DELAY = 20000; 
