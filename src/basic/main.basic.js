@@ -404,10 +404,10 @@ function calculateCartTotals() {
   const cartItems = cartDisplay.children;
   subtotal = 0;
   const itemDiscounts = [];
-  for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      const product = findProductById(cartItems[i].id);
-      const quantityElement = cartItems[i].querySelector(".quantity-number");
+  
+  Array.from(cartItems).forEach(cartItem => {
+    const product = findProductById(cartItem.id);
+      const quantityElement = cartItem.querySelector(".quantity-number");
       const quantity = parseInt(quantityElement.textContent);
       const itemTotal = product.price * quantity;
       const discount =
@@ -418,7 +418,7 @@ function calculateCartTotals() {
       itemCount += quantity;
       subtotal += itemTotal;
 
-      const itemDiv = cartItems[i];
+      const itemDiv = cartItem;
       const priceElements = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElements.forEach(function (elem) {
         if (elem.classList.contains("text-lg")) {
@@ -431,8 +431,7 @@ function calculateCartTotals() {
         itemDiscounts.push({ name: product.name, discount: discount * 100 });
       }
       totalAmount += itemTotal * (1 - discount);
-    })();
-  }
+    });
   let discRate = 0;
   const originalTotal = subtotal;
   if (itemCount >= BULK_DISCOUNT_THRESHOLD) {
@@ -462,18 +461,20 @@ function calculateCartTotals() {
   const summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subtotal > 0) {
-    for (let i = 0; i < cartItems.length; i++) {
-      const product = findProductById(cartItems[i].id);
-      const quantityElement = cartItems[i].querySelector(".quantity-number");
+    const summaryItems = Array.from(cartItems).map(cartItem => {
+      const product = findProductById(cartItem.id);
+      const quantityElement = cartItem.querySelector(".quantity-number");
       const quantity = parseInt(quantityElement.textContent);
       const itemTotal = product.price * quantity;
-      summaryDetails.innerHTML += `
+      return `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${product.name} x ${quantity}</span>
           <span>₩${itemTotal.toLocaleString()}</span>
         </div>
       `;
-    }
+    }).join('');
+    
+    summaryDetails.innerHTML = summaryItems;
 
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
@@ -685,12 +686,13 @@ const updateStockInformation = () => {
 };
 function updatePricesInCart() {
   const cartItems = cartDisplay.children;
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemId = cartItems[i].id;
+  
+  Array.from(cartItems).forEach(cartItem => {
+    const itemId = cartItem.id;
     const product = productList.find(product => product.id === itemId);
     if (product) {
-      const priceDiv = cartItems[i].querySelector(".text-lg");
-      const nameDiv = cartItems[i].querySelector("h3");
+      const priceDiv = cartItem.querySelector(".text-lg");
+      const nameDiv = cartItem.querySelector("h3");
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML =
           '<span class="line-through text-gray-400">₩' +
@@ -720,7 +722,7 @@ function updatePricesInCart() {
         nameDiv.textContent = product.name;
       }
     }
-  }
+  });
   calculateCartTotals();
 }
 main();
