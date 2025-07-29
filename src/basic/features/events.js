@@ -1,5 +1,10 @@
 /**
- * 번개세일과 추천상품 할인 이벤트 타이머를 설정합니다 (main.basic.js에서 이전)
+ * Events Feature - 통합 모듈
+ * 번개세일과 추천상품 할인 이벤트 타이머 관리
+ */
+
+/**
+ * 번개세일과 추천상품 할인 이벤트 타이머를 설정합니다
  * @param {Object} config - 설정 객체
  * @param {Array} config.productList - 상품 목록
  * @param {Object} config.appState - 앱 상태 

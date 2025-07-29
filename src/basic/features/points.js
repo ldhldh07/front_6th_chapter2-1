@@ -1,4 +1,113 @@
 /**
+ * Points Feature - 통합 모듈
+ * 포인트 계산 로직과 UI 관리
+ */
+
+// Points constants
+const POINTS_CALCULATION_BASE = 1000;
+const COMBO_BONUS_POINTS = 50;
+const FULL_SET_BONUS_POINTS = 100;
+const SMALL_BULK_BONUS_POINTS = 20;
+const MEDIUM_BULK_BONUS_POINTS = 50;
+const LARGE_BULK_BONUS_POINTS = 100;
+const SMALL_BULK_THRESHOLD = 10;
+const MEDIUM_BULK_THRESHOLD = 20;
+const LARGE_BULK_THRESHOLD = 30;
+const TUESDAY_DAY_NUMBER = 2;
+
+// ==================== Points Calculators ====================
+
+/**
+ * 기본 포인트를 계산합니다
+ * @param {number} totalAmount - 총 구매 금액
+ * @returns {number} 기본 포인트
+ */
+export const calculateBasePoints = (totalAmount) => {
+  return Math.floor(totalAmount / POINTS_CALCULATION_BASE);
+};
+
+/**
+ * 화요일 보너스 포인트를 계산합니다
+ * @param {number} basePoints - 기본 포인트
+ * @returns {Object} 계산 결과
+ */
+export const calculateTuesdayBonus = (basePoints) => {
+  const today = new Date();
+  const isTuesday = today.getDay() === TUESDAY_DAY_NUMBER;
+  
+  if (isTuesday && basePoints > 0) {
+    return {
+      points: basePoints * 2,
+      description: "화요일 2배",
+      applied: true
+    };
+  }
+  
+  return {
+    points: basePoints,
+    description: null,
+    applied: false
+  };
+};
+
+/**
+ * 콤보 보너스 포인트를 계산합니다
+ * @param {Object} productTypes - 상품 유형 정보
+ * @returns {Array} 보너스 목록
+ */
+export const calculateComboBonuses = (productTypes) => {
+  const bonuses = [];
+  
+  if (productTypes.hasKeyboard && productTypes.hasMouse) {
+    bonuses.push({
+      points: COMBO_BONUS_POINTS,
+      description: `키보드+마우스 세트 +${COMBO_BONUS_POINTS}p`
+    });
+    
+    if (productTypes.hasMonitorArm) {
+      bonuses.push({
+        points: FULL_SET_BONUS_POINTS,
+        description: `풀세트 구매 +${FULL_SET_BONUS_POINTS}p`
+      });
+    }
+  }
+  
+  return bonuses;
+};
+
+/**
+ * 대량구매 보너스 포인트를 계산합니다
+ * @param {number} itemCount - 총 아이템 수량
+ * @returns {Object|null} 대량구매 보너스
+ */
+export const calculateBulkBonus = (itemCount) => {
+  if (itemCount >= LARGE_BULK_THRESHOLD) {
+    return {
+      points: LARGE_BULK_BONUS_POINTS,
+      description: `대량구매(${LARGE_BULK_THRESHOLD}개+) +${LARGE_BULK_BONUS_POINTS}p`
+    };
+  }
+  
+  if (itemCount >= MEDIUM_BULK_THRESHOLD) {
+    return {
+      points: MEDIUM_BULK_BONUS_POINTS,
+      description: `대량구매(${MEDIUM_BULK_THRESHOLD}개+) +${MEDIUM_BULK_BONUS_POINTS}p`
+    };
+  }
+  
+  if (itemCount >= SMALL_BULK_THRESHOLD) {
+    return {
+      points: SMALL_BULK_BONUS_POINTS,
+      description: `대량구매(${SMALL_BULK_THRESHOLD}개+) +${SMALL_BULK_BONUS_POINTS}p`
+    };
+  }
+  
+  return null;
+};
+
+// ==================== Points Display UI ====================
+
+/**
  * 포인트 정보를 UI에 표시합니다
  * @param {number} finalPoints - 최종 포인트
  * @param {Array} pointsDetail - 포인트 상세 내역
