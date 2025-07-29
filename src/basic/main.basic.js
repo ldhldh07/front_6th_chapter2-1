@@ -1,10 +1,10 @@
 import * as constants from './constants/index.js';
-import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles } from './utils/index.js';
+import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes } from './utils/index.js';
 const {
   // 상품 ID
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
   // 할인 시스템 (필요한 것만)
-  QUANTITY_DISCOUNT_THRESHOLD, SUGGESTION_DISCOUNT_RATE,
+  SUGGESTION_DISCOUNT_RATE,
   TUESDAY_ADDITIONAL_DISCOUNT_RATE, LIGHTNING_SALE_DISCOUNT_RATE,
   // 포인트 시스템
   POINTS_CALCULATION_BASE, COMBO_BONUS_POINTS, FULL_SET_BONUS_POINTS,
@@ -27,9 +27,7 @@ let totalAmount = 0;
 
 
 
-const findProductById = (productId) => {
-  return productList.find(product => product.id === productId);
-};
+
 
 
 
@@ -317,23 +315,7 @@ const updateSelectOptions = () => {
   productSelect.style.borderColor = totalStock < TOTAL_STOCK_WARNING_THRESHOLD ? "orange" : "";
 };
 
-const calculateItemData = (cartItem) => {
-  const product = findProductById(cartItem.id);
-  const quantityElement = cartItem.querySelector(".quantity-number");
-  const quantity = parseInt(quantityElement.textContent);
-  const itemTotal = product.price * quantity;
-  const discount = quantity >= QUANTITY_DISCOUNT_THRESHOLD 
-    ? getProductDiscountRate(product.id) 
-    : 0;
-  
-  return {
-    product,
-    quantity,
-    itemTotal,
-    discount,
-    cartItem
-  };
-};
+
 
 
 
@@ -375,7 +357,7 @@ function calculateCartTotals() {
   const itemDiscounts = [];
   
   Array.from(cartItems).forEach(cartItem => {
-    const itemData = calculateItemData(cartItem);
+    const itemData = calculateItemData(cartItem, productList);
     const product = itemData.product;
     const quantity = itemData.quantity;
     const itemTotal = itemData.itemTotal;
@@ -410,7 +392,7 @@ function calculateCartTotals() {
   summaryDetails.innerHTML = "";
   if (subtotal > 0) {
     const summaryItems = Array.from(cartItems).map(cartItem => {
-      const itemData = calculateItemData(cartItem);
+      const itemData = calculateItemData(cartItem, productList);
       const product = itemData.product;
       const quantity = itemData.quantity;
       const itemTotal = itemData.itemTotal;
@@ -513,20 +495,7 @@ function calculateCartTotals() {
   renderBonusPoints();
 }
 
-const getCartProductTypes = () => {
-  const cartItems = Array.from(cartDisplay.children);
-  
-  return cartItems.reduce((types, node) => {
-    const product = findProductById(node.id);
-    if (!product) return types;
-    
-    if (product.id === PRODUCT_ONE) types.hasKeyboard = true;
-    if (product.id === PRODUCT_TWO) types.hasMouse = true;
-    if (product.id === PRODUCT_THREE) types.hasMonitorArm = true;
-    
-    return types;
-  }, { hasKeyboard: false, hasMouse: false, hasMonitorArm: false });
-};
+
 
 function renderBonusPoints() {
   if (cartDisplay.children.length === 0) {
@@ -550,7 +519,7 @@ function renderBonusPoints() {
       pointsDetail.push("화요일 2배");
     }
   }
-  const { hasKeyboard, hasMouse, hasMonitorArm } = getCartProductTypes();
+  const { hasKeyboard, hasMouse, hasMonitorArm } = getCartProductTypes(cartDisplay.children, productList);
   if (hasKeyboard && hasMouse) {
     finalPoints = finalPoints + COMBO_BONUS_POINTS;
     pointsDetail.push(`키보드+마우스 세트 +${COMBO_BONUS_POINTS}p`);
