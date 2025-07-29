@@ -2,13 +2,12 @@ import * as constants from './constants/index.js';
 import { initializeProducts, findProductById, getOptionData } from './features/products/index.js';
 import { getProductDiscountRate, applyBulkDiscount, calculateTuesdayDiscount, updateTuesdayUI } from './features/discounts/index.js';
 import { calculateItemData, getCartProductTypes } from './features/cart/index.js';
-import { updateItemStyles } from './shared/index.js';
+import { updateItemStyles, setDOMRefs, createElement } from './shared/index.js';
 import { calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus, displayPointsInfo, hidePointsIfEmpty } from './features/points/index.js';
 import { headerTemplate, orderSummaryTemplate, manualGuideTemplate, helpToggleTemplate, cartSummaryTemplate, discountInfoTemplate } from './shared/templates/index.js';
 import { productSelectorTemplate } from './features/products/templates/index.js';
 import { cartItemTemplate } from './features/cart/templates/index.js';
 const {
-  // 실제 사용되는 상수들만 (Feature로 이전 후 정리됨)
   TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE,
   POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD, TOTAL_STOCK_WARNING_THRESHOLD,
   LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_DISCOUNT_RATE, LIGHTNING_SALE_DURATION,
@@ -55,49 +54,60 @@ const main = () => {
 };
 
 const createDOMStructure = (root) => {
-  const header = document.createElement("div");
-  header.innerHTML = headerTemplate;
-  const gridContainer = document.createElement("div");
-  gridContainer.className =
-    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  const leftColumn = document.createElement("div");
-  leftColumn.innerHTML = productSelectorTemplate;
-  const rightColumn = document.createElement("div");
-  rightColumn.innerHTML = orderSummaryTemplate;
-  // DOM 참조 설정 (템플릿 적용 후)
-  domRefs.productSelect = leftColumn.querySelector("#product-select");
-  domRefs.addButton = leftColumn.querySelector("#add-to-cart");
-  domRefs.stockInformation = leftColumn.querySelector("#stock-status");
-  domRefs.cartDisplay = leftColumn.querySelector("#cart-items");
-  domRefs.cartTotalElement = rightColumn.querySelector("#cart-total");
-  const manualToggle = document.createElement("button");
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle("hidden");
-    manualColumn.classList.toggle("translate-x-full");
+  const header = createElement("div", { innerHTML: headerTemplate });
+  const leftColumn = createElement("div", { innerHTML: productSelectorTemplate });
+  const rightColumn = createElement("div", { innerHTML: orderSummaryTemplate });
+
+  setDOMRefs(domRefs, {
+    productSelect: { container: leftColumn, selector: "#product-select" },
+    addButton: { container: leftColumn, selector: "#add-to-cart" },
+    stockInformation: { container: leftColumn, selector: "#stock-status" },
+    cartDisplay: { container: leftColumn, selector: "#cart-items" },
+    cartTotalElement: { container: rightColumn, selector: "#cart-total" }
+  });
+
+  const gridContainer = createElement("div", { 
+    className: "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden" 
+  }, [leftColumn, rightColumn]);
+
+  const createManualSystem = () => {
+    const manualColumn = createElement("div", {
+      className: "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300",
+      innerHTML: manualGuideTemplate
+    });
+
+    const manualOverlay = createElement("div", {
+      className: "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300",
+      onclick: function (e) {
+        if (e.target === manualOverlay) {
+          manualOverlay.classList.add("hidden");
+          manualColumn.classList.add("translate-x-full");
+        }
+      }
+    }, [manualColumn]);
+
+    const manualToggle = createElement("button", {
+      className: "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50",
+      innerHTML: helpToggleTemplate,
+      onclick: function () {
+        manualOverlay.classList.toggle("hidden");
+        manualColumn.classList.toggle("translate-x-full");
+      }
+    });
+
+    return { manualToggle, manualOverlay };
   };
-  manualToggle.className =
-    "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
-  manualToggle.innerHTML = helpToggleTemplate;
-  const manualOverlay = document.createElement("div");
-  manualOverlay.className =
-    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add("hidden");
-      manualColumn.classList.add("translate-x-full");
-    }
-  };
-  const manualColumn = document.createElement("div");
-  manualColumn.className =
-    "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
-  manualColumn.innerHTML = manualGuideTemplate;
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+
+  const { manualToggle, manualOverlay } = createManualSystem();
+
+  const appStructure = createElement("div", { className: "app-container" }, [
+    header,
+    gridContainer,
+    manualToggle,
+    manualOverlay
+  ]);
+
+  root.appendChild(appStructure);
   updateSelectOptions();
   calculateCartTotals();
 };
@@ -108,7 +118,7 @@ const calculateCartTotals = () => {
   const cartItems = domRefs.cartDisplay.children;
   const itemDiscounts = [];
   
-  // subtotal을 reduce 패턴으로 개선
+
   const subtotal = Array.from(cartItems).reduce((sum, cartItem) => {
     const itemData = calculateItemData(cartItem, dataState.productList);
     const product = itemData.product;
@@ -131,13 +141,13 @@ const calculateCartTotals = () => {
   
   const originalTotal = subtotal;
   
-  // 대량구매 할인 적용
+
   const bulkDiscount = applyBulkDiscount(appState.itemCount, subtotal);
   if (bulkDiscount) {
     appState.totalAmount = bulkDiscount.totalAmount;
   }
   
-  // 화요일 할인 적용
+
   const tuesdayDiscount = calculateTuesdayDiscount(appState.totalAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
   appState.totalAmount = tuesdayDiscount.totalAmount;
   const discRate = tuesdayDiscount.discRate;
@@ -270,22 +280,20 @@ const setupEventTimers = () => {
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 };
 
-
-
 const updateSelectOptions = () => {
-  domRefs.productSelect.innerHTML = "";
-  
   const totalStock = dataState.productList.reduce((sum, product) => sum + product.quantity, 0);
-  dataState.productList.forEach(item => {
-    const option = document.createElement("option");
-      option.value = item.id;
-      
-      const optionData = getOptionData(item);
-      option.textContent = optionData.textContent;
-      option.className = optionData.className;
-      option.disabled = optionData.disabled;
-      domRefs.productSelect.appendChild(option);
+
+  const options = dataState.productList.map(item => {
+    const optionData = getOptionData(item);
+    return createElement("option", {
+      value: item.id,
+      textContent: optionData.textContent,
+      className: optionData.className,
+      disabled: optionData.disabled
     });
+  });
+
+  domRefs.productSelect.replaceChildren(...options);
   domRefs.productSelect.style.borderColor = totalStock < TOTAL_STOCK_WARNING_THRESHOLD ? "orange" : "";
 };
 
@@ -310,7 +318,7 @@ const renderBonusPoints = () => {
   const basePoints = calculateBasePoints(appState.totalAmount);
   const pointsDetail = [];
 
-  // 기본 포인트 적용
+
   const initialPoints = basePoints > 0 ? (() => {
     pointsDetail.push("기본: " + basePoints + "p");
     return basePoints;
@@ -338,7 +346,6 @@ const renderBonusPoints = () => {
     return bulkBonus.points;
   })() : 0;
   
-  // 최종 포인트 합계 (const 개선)
   const finalPoints = tuesdayPoints + comboPoints + bulkPoints;
   
   // 전역 상태 업데이트 및 UI 표시
@@ -411,11 +418,11 @@ domRefs.addButton.addEventListener("click", function () {
         alert("재고가 부족합니다.");
       }
     } else {
-      const newItem = document.createElement("div");
-      newItem.id = selectedProduct.id;
-      newItem.className =
-        "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-      newItem.innerHTML = cartItemTemplate(selectedProduct);
+      const newItem = createElement("div", {
+        id: selectedProduct.id,
+        className: "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0",
+        innerHTML: cartItemTemplate(selectedProduct)
+      });
       domRefs.cartDisplay.appendChild(newItem);
       selectedProduct.quantity--;
     }

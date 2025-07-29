@@ -1,5 +1,9 @@
 /**
- * 장바구니 아이템 템플릿 (동적 데이터 함수)
+ * 장바구니 아이템 템플릿 (기존 방식으로 복원 + Virtual DOM 예시 주석)
+ */
+
+/**
+ * 기존 템플릿 함수 (안정된 방식)
  */
 export const cartItemTemplate = (selectedProduct) => {
   const saleIcon = selectedProduct.onSale && selectedProduct.suggestSale ? "⚡💝" : 
@@ -29,4 +33,8 @@ export const cartItemTemplate = (selectedProduct) => {
   <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${selectedProduct.id}">Remove</a>
 </div>
 `;
-}; 
+};
+
+// TODO: Virtual DOM 방식은 추후 단계별로 적용
+// import { h, renderVNode } from '../../../shared/utils/virtual-dom.js';
+// export const CartItemVNode = (selectedProduct) => { ... } 
