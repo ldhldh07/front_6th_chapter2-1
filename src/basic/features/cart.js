@@ -1,16 +1,19 @@
 import { applyBulkDiscount, calculateTuesdayDiscount, getProductDiscountRate } from './discounts.js';
-import { QUANTITY_DISCOUNT_THRESHOLD, PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE } from '../constants.js';
+import { QUANTITY_DISCOUNT_THRESHOLD, PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, TOTAL_STOCK_WARNING_THRESHOLD } from '../constants.js';
+import { updateTuesdayUI } from './discounts.js';
+import { cartSummary, discountInfo, cartItem } from '../app.js';
+import { renderBonusPoints, calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus } from './points.js';
 
 /**
  * 장바구니 아이템의 스타일을 업데이트합니다
  * @param {HTMLElement} cartItem - 장바구니 DOM 요소
  * @param {number} quantity - 상품 수량
  */
-const updateItemStyles = (cartItem, quantity) => {
+export const updateItemStyles = (cartItem, quantity) => {
   const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
-  priceElements.forEach(elemnet => {
-    if (elemnet.classList.contains("text-lg")) {
-        elemnet.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
+  priceElements.forEach(element => {
+    if (element.classList.contains("text-lg")) {
+        element.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
     }
   });
 };
@@ -173,9 +176,9 @@ export const updatePricesInCart = (cartItems, productList, findProductById, getP
  * @param {Object} calculationResult - 계산 결과 객체
  * @param {Object} domRefs - DOM 참조 객체
  * @param {Object} appState - 앱 상태 (업데이트용)
- * @param {Object} dependencies - 필요한 의존성 함수들
+ * @param {Array} productList - 상품 목록 (포인트 계산용)
  */
-export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, dependencies) => {
+export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, productList) => {
   const {
     totalAmount,
     itemCount,
@@ -189,18 +192,7 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, de
     cartItemsData
   } = calculationResult;
 
-  const {
-    updateItemStyles,
-    updateTuesdayUI,
-    cartSummary,
-    discountInfo,
-    renderBonusPoints,
-    calculateBasePoints,
-    calculateTuesdayBonus,
-    calculateComboBonuses,
-    calculateBulkBonus,
-    getCartProductTypes
-  } = dependencies;
+  // 직접 import된 함수들 사용
 
   // === 1. 상태 업데이트 ===
   appState.totalAmount = totalAmount;
@@ -298,7 +290,7 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, de
     domRefs.cartDisplay.children,
     totalAmount,
     itemCount,
-    dependencies.productList,
+    productList,
     appState,
     calculateBasePoints,
     calculateTuesdayBonus,
@@ -358,7 +350,7 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
   // 새 아이템 생성 (HTML 기반)
   const newItemHTML = `
     <div id="${selectedProduct.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
-      ${dependencies.templates.cartItem(selectedProduct)}
+      ${cartItem(selectedProduct)}
     </div>
   `;
   domRefs.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
@@ -380,7 +372,6 @@ export const handleCartActions = (event, dependencies) => {
   const {
     productList,
     domRefs,
-    constants: { TOTAL_STOCK_WARNING_THRESHOLD },
     functions: { findProductById, calculateCartTotals, updateSelectOptions }
   } = dependencies;
 

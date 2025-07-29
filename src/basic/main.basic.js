@@ -8,20 +8,14 @@
 import {
   INITIAL_PRODUCT_DATA,
   TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE,
-  LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_DISCOUNT_RATE, LIGHTNING_SALE_DURATION,
-  SUGGESTION_DISCOUNT_RATE, SUGGESTION_SALE_MAX_DELAY, SUGGESTION_INTERVAL_MS,
   POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD, TOTAL_STOCK_WARNING_THRESHOLD,
-  QUANTITY_DISCOUNT_THRESHOLD
 } from './constants.js';
 
-import { 
-  cartSummary, discountInfo, cartItem,
-  renderAppWithHTML
-} from './app.js';
-import { findProductById, getProductDisplayInfo, updateSelectOptions } from './features/products.js';
-import { updateTuesdayUI } from './features/discounts.js';
-import { getCartProductTypes, updatePricesInCart, calculateCompleteCartTotals, updateCartTotalsDisplay, handleAddToCart, handleCartActions } from './features/cart.js';
-import { calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus, renderBonusPoints } from './features/points.js';
+import { renderApp } from './app.js';
+import { findProductById, updateSelectOptions } from './features/products.js';
+
+import { calculateCompleteCartTotals, updateCartTotalsDisplay, handleAddToCart, handleCartActions } from './features/cart.js';
+
 import { setupEventTimers } from './features/events.js';
 
 // ==================== App State ====================
@@ -47,17 +41,7 @@ const domRefs = {
 
 // ==================== Shared Utilities ====================
 
-/**
- * 장바구니 아이템의 스타일을 업데이트합니다
- */
-const updateItemStyles = (cartItem, quantity) => {
-  const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
-  priceElements.forEach(elem => {
-    if (elem.classList.contains("text-lg")) {
-      elem.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
-    }
-  });
-};
+
 
 // 매뉴얼 시스템은 app.js의 renderAppWithHTML에 포함됨
 
@@ -84,22 +68,7 @@ const main = () => {
     productList: dataState.productList,
     appState,
     domRefs,
-    constants: {
-      LIGHTNING_SALE_MAX_DELAY,
-      LIGHTNING_SALE_DISCOUNT_RATE,
-      LIGHTNING_SALE_DURATION,
-      SUGGESTION_DISCOUNT_RATE,
-      SUGGESTION_SALE_MAX_DELAY,
-      SUGGESTION_INTERVAL_MS,
-      TOTAL_STOCK_WARNING_THRESHOLD
-    },
-    functions: {
-      updateSelectOptions,
-      updatePricesInCart,
-      findProductById,
-      getProductDisplayInfo,
-      calculateCartTotals
-    }
+    calculateCartTotals
   });
 };
 
@@ -108,7 +77,7 @@ const main = () => {
  */
 const createAppStructure = (root) => {
   // HTML 기반 전체 앱 렌더링
-  renderAppWithHTML(root);
+  renderApp(root);
   
   // DOM 참조 설정
   setupDOMRefs();
@@ -189,19 +158,7 @@ const calculateCartTotals = () => {
     calculationResult,
     domRefs,
     appState,
-    {
-      updateItemStyles,
-      updateTuesdayUI,
-      cartSummary,
-      discountInfo,
-      renderBonusPoints,
-      calculateBasePoints,
-      calculateTuesdayBonus,
-      calculateComboBonuses,
-      calculateBulkBonus,
-      getCartProductTypes,
-      productList: dataState.productList
-    }
+    dataState.productList
   );
 };
 
@@ -215,8 +172,7 @@ domRefs.addButton.addEventListener("click", () => {
     productList: dataState.productList,
     appState,
     domRefs,
-    functions: { findProductById, calculateCartTotals },
-    templates: { cartItem }
+    functions: { findProductById, calculateCartTotals }
   });
 });
 
@@ -224,7 +180,6 @@ domRefs.cartDisplay.addEventListener("click", (event) => {
   handleCartActions(event, {
     productList: dataState.productList,
     domRefs,
-    constants: { TOTAL_STOCK_WARNING_THRESHOLD },
     functions: { findProductById, calculateCartTotals, updateSelectOptions }
   });
 }); 

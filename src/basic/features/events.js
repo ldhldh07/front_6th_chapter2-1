@@ -3,36 +3,31 @@
  * 번개세일과 추천상품 할인 이벤트 타이머 관리
  */
 
+import {
+  LIGHTNING_SALE_MAX_DELAY,
+  LIGHTNING_SALE_DISCOUNT_RATE,
+  LIGHTNING_SALE_DURATION,
+  SUGGESTION_DISCOUNT_RATE,
+  SUGGESTION_SALE_MAX_DELAY,
+  SUGGESTION_INTERVAL_MS,
+  TOTAL_STOCK_WARNING_THRESHOLD
+} from '../constants.js';
+import { updateSelectOptions, findProductById, getProductDisplayInfo, updatePricesInCart } from './products.js';
+
 /**
  * 번개세일과 추천상품 할인 이벤트 타이머를 설정합니다
  * @param {Object} config - 설정 객체
  * @param {Array} config.productList - 상품 목록
  * @param {Object} config.appState - 앱 상태 
  * @param {Object} config.domRefs - DOM 참조
- * @param {Object} config.constants - 상수들
- * @param {Object} config.functions - 필요한 함수들
+ * @param {Function} config.calculateCartTotals - 장바구니 계산 함수 (main.basic.js 로컬 함수)
  */
 export const setupEventTimers = (config) => {
   const { 
     productList, 
     appState, 
     domRefs, 
-    constants: {
-      LIGHTNING_SALE_MAX_DELAY,
-      LIGHTNING_SALE_DISCOUNT_RATE,
-      LIGHTNING_SALE_DURATION,
-      SUGGESTION_DISCOUNT_RATE,
-      SUGGESTION_SALE_MAX_DELAY,
-      SUGGESTION_INTERVAL_MS,
-      TOTAL_STOCK_WARNING_THRESHOLD
-    },
-    functions: {
-      updateSelectOptions,
-      updatePricesInCart,
-      findProductById,
-      getProductDisplayInfo,
-      calculateCartTotals
-    }
+    calculateCartTotals
   } = config;
 
   // Lightning Sale Timer

@@ -234,37 +234,28 @@ export const productSelector = `
 
 /**
  * 전체 앱 구조를 HTML로 생성 (innerHTML 기반)
- * @param {Object} ui - 필요한 UI 컴포넌트들
  * @returns {string} 전체 앱 HTML
  */
-export const createAppHTML = (ui = {}) => {
-  const {
-    headerUI = header,
-    productSelectorUI = productSelector,
-    orderSummaryUI = orderSummary,
-    helpToggleUI = helpToggle,
-    manualGuideUI = manualGuide
-  } = ui;
-
+export const createAppHTML = () => {
   return `
     <div class="app-container">
-      ${headerUI}
+      ${header}
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-        ${productSelectorUI}
-        ${orderSummaryUI}
+        ${productSelector}
+        ${orderSummary}
       </div>
       <button 
         class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
         data-action="toggle-manual"
       >
-        ${helpToggleUI}
+        ${helpToggle}
       </button>
       <div 
         class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"
         id="manual-overlay"
       >
         <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300" id="manual-panel">
-          ${manualGuideUI}
+          ${manualGuide}
         </div>
       </div>
     </div>
@@ -274,10 +265,9 @@ export const createAppHTML = (ui = {}) => {
 /**
  * innerHTML 기반 전체 앱 렌더링 (DOM 조작 대신 사용)
  * @param {HTMLElement} rootElement - 루트 DOM 요소
- * @param {Object} ui - 커스텀 UI들 (선택사항)
  */
-export const renderAppWithHTML = (rootElement, ui = {}) => {
-  rootElement.innerHTML = createAppHTML(ui);
+export const renderApp = (rootElement) => {
+  rootElement.innerHTML = createAppHTML();
 };
 
 // ==================== 이벤트 위임 시스템 (React 스타일) ====================
