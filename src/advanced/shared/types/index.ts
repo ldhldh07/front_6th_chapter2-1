@@ -1,7 +1,3 @@
-/**
- * Basic Types for React Migration
- */
-
 // Product 관련 타입
 export interface Product {
   id: string;
