@@ -1,4 +1,5 @@
-import { updateItemStyles, updateTuesdayUI } from '../../../utils/index.js';
+import { updateItemStyles } from '../../../shared/index.js';
+import { updateTuesdayUI } from '../../discounts/index.js';
 
 /**
  * 장바구니 아이템들의 스타일을 일괄 업데이트합니다

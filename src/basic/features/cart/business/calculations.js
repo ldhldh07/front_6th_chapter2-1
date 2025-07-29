@@ -1,5 +1,4 @@
-import { applyBulkDiscount, calculateTuesdayDiscount } from '../../../utils/index.js';
-import { getProductDiscountRate } from '../../../features/discounts/index.js';
+import { applyBulkDiscount, calculateTuesdayDiscount, getProductDiscountRate } from '../../discounts/index.js';
 import * as constants from '../../../constants/index.js';
 
 const { QUANTITY_DISCOUNT_THRESHOLD } = constants;
