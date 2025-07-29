@@ -16,4 +16,10 @@ export const TUESDAY_DAY_NUMBER = 2;
 // 타이밍 상수 (밀리초)
 export const LIGHTNING_SALE_MAX_DELAY = 10000;
 export const LIGHTNING_SALE_DURATION = 30000;
-export const SUGGESTION_SALE_MAX_DELAY = 20000; 
+export const SUGGESTION_SALE_MAX_DELAY = 20000;
+export const SUGGESTION_INTERVAL_MS = 60000; // 60초
+
+// 할인 텍스트 템플릿
+export const SUPER_SALE_TEXT = "25% SUPER SALE!";
+export const LIGHTNING_SALE_TEXT = "20% SALE!";
+export const SUGGESTION_SALE_TEXT = "5% 추천할인!"; 

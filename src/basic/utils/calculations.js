@@ -7,6 +7,11 @@ const {
   QUANTITY_DISCOUNT_THRESHOLD, BULK_DISCOUNT_THRESHOLD, BULK_DISCOUNT_RATE
 } = constants;
 
+/**
+ * 상품별 할인율을 반환합니다
+ * @param {string} productId - 상품 ID (PRODUCT_ONE ~ PRODUCT_FIVE)
+ * @returns {number} 할인율 (0.0 ~ 1.0)
+ */
 export const getProductDiscountRate = (productId) => {
   if (productId === PRODUCT_ONE) return KEYBOARD_DISCOUNT_RATE;
   if (productId === PRODUCT_TWO) return MOUSE_DISCOUNT_RATE;
@@ -16,6 +21,14 @@ export const getProductDiscountRate = (productId) => {
   return 0;
 };
 
+/**
+ * 대량구매 할인을 적용합니다
+ * @param {number} itemCount - 총 상품 개수
+ * @param {number} subtotal - 소계 금액
+ * @returns {Object|null} 할인 정보 또는 null
+ * @returns {number} returns.totalAmount - 할인 적용된 금액
+ * @returns {number} returns.discRate - 할인율
+ */
 export const applyBulkDiscount = (itemCount, subtotal) => {
   if (itemCount >= BULK_DISCOUNT_THRESHOLD) {
     return {
@@ -26,4 +39,34 @@ export const applyBulkDiscount = (itemCount, subtotal) => {
   return null; // 대량구매 할인 미적용
 };
 
-// calculateItemData는 findProductById 의존성으로 인해 추후 분리 
+/**
+ * 화요일 할인을 계산합니다
+ * @param {number} totalAmount - 현재 총액
+ * @param {number} originalTotal - 원래 총액  
+ * @param {number} tuesdayDayNumber - 화요일 요일 번호 (0-6)
+ * @param {number} discountRate - 화요일 할인율 (0.0 ~ 1.0)
+ * @returns {Object} 할인 계산 결과
+ * @returns {number} returns.totalAmount - 할인 적용된 금액
+ * @returns {number} returns.discRate - 전체 할인율
+ * @returns {boolean} returns.isTuesday - 오늘이 화요일인지 여부
+ */
+export const calculateTuesdayDiscount = (totalAmount, originalTotal, tuesdayDayNumber, discountRate) => {
+  const today = new Date();
+  const isTuesday = today.getDay() === tuesdayDayNumber;
+  
+  if (isTuesday && totalAmount > 0) {
+    const discountedAmount = totalAmount * (1 - discountRate);
+    const discRate = 1 - discountedAmount / originalTotal;
+    return {
+      totalAmount: discountedAmount,
+      discRate,
+      isTuesday
+    };
+  }
+  
+  return {
+    totalAmount,
+    discRate: 1 - totalAmount / originalTotal,
+    isTuesday
+  };
+}; 

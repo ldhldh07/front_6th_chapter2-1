@@ -1,8 +1,9 @@
 import * as constants from './constants/index.js';
-import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes } from './utils/index.js';
+import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes, calculateTuesdayDiscount, updateTuesdayUI } from './utils/index.js';
 const {
-  // 상품 ID
+  // 상품 ID 및 데이터
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
+  INITIAL_PRODUCT_DATA,
   // 할인 시스템 (필요한 것만)
   SUGGESTION_DISCOUNT_RATE,
   TUESDAY_ADDITIONAL_DISCOUNT_RATE, LIGHTNING_SALE_DISCOUNT_RATE,
@@ -12,7 +13,8 @@ const {
   SMALL_BULK_THRESHOLD, MEDIUM_BULK_THRESHOLD, LARGE_BULK_THRESHOLD,
   // 기타
   LOW_STOCK_THRESHOLD, TUESDAY_DAY_NUMBER, TOTAL_STOCK_WARNING_THRESHOLD,
-  LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_DURATION, SUGGESTION_SALE_MAX_DELAY
+  LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_DURATION, SUGGESTION_SALE_MAX_DELAY,
+  SUGGESTION_INTERVAL_MS
 } = constants;
 
 // 전역 상태 변수들
@@ -40,53 +42,7 @@ const initializeAppState = () => {
 };
 
 const initializeProductData = () => {
-  productList = [
-    {
-      id: PRODUCT_ONE,
-      name: "버그 없애는 키보드",
-      price: 10000,
-      originalPrice: 10000,
-      quantity: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_TWO,
-      name: "생산성 폭발 마우스",
-      price: 20000,
-      originalPrice: 20000,
-      quantity: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_THREE,
-      name: "거북목 탈출 모니터암",
-      price: 30000,
-      originalPrice: 30000,
-      quantity: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_FOUR,
-      name: "에러 방지 노트북 파우치",
-      price: 15000,
-      originalPrice: 15000,
-      quantity: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_FIVE,
-      name: "코딩할 때 듣는 Lo-Fi 스피커",
-      price: 25000,
-      originalPrice: 25000,
-      quantity: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ];
+  productList = [...INITIAL_PRODUCT_DATA];
 };
 
 const main = () => {
@@ -302,9 +258,10 @@ const calculateCartTotals = () => {
   }
   
   // 화요일 할인 적용
-  const tuesdayDiscount = applyTuesdayDiscount(totalAmount, originalTotal);
+  const tuesdayDiscount = calculateTuesdayDiscount(totalAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
   totalAmount = tuesdayDiscount.totalAmount;
   const discRate = tuesdayDiscount.discRate;
+  updateTuesdayUI(tuesdayDiscount.isTuesday);
   document.getElementById("item-count").textContent =
     "🛍️ " + itemCount + " items in cart";
   const summaryDetails = document.getElementById("summary-details");
@@ -444,7 +401,7 @@ const setupEventTimers = () => {
           updatePricesInCart();
         }
       }
-    }, 60000);
+    }, SUGGESTION_INTERVAL_MS);
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 };
 
@@ -473,30 +430,7 @@ const updateSelectOptions = () => {
 
 
 
-const applyTuesdayDiscount = (totalAmount, originalTotal) => {
-  const today = new Date();
-  const isTuesday = today.getDay() === TUESDAY_DAY_NUMBER;
-  const tuesdaySpecial = document.getElementById("tuesday-special");
-  
-  if (isTuesday && totalAmount > 0) {
-    const discountedAmount = totalAmount * (1 - TUESDAY_ADDITIONAL_DISCOUNT_RATE);
-    const discRate = 1 - discountedAmount / originalTotal;
-    tuesdaySpecial.classList.remove("hidden");
-    
-    return {
-      totalAmount: discountedAmount,
-      discRate,
-      isTuesday
-    };
-  } else {
-    tuesdaySpecial.classList.add("hidden");
-    return {
-      totalAmount,
-      discRate: 1 - totalAmount / originalTotal,
-      isTuesday
-    };
-  }
-};
+
 
 
 
