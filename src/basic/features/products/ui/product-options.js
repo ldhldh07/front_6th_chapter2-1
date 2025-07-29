@@ -110,4 +110,28 @@ export const getProductDisplayInfo = (product) => {
     priceHtml: `₩${product.price.toLocaleString()}`,
     nameText: product.name
   };
+};
+
+/**
+ * product select options를 업데이트합니다 (main.basic.js에서 이전)
+ * @param {Array} productList - 상품 목록
+ * @param {Element} productSelectElement - select DOM element
+ * @param {Function} createElement - DOM element 생성 함수
+ * @param {number} totalStockWarningThreshold - 재고 경고 임계값
+ */
+export const updateSelectOptions = (productList, productSelectElement, createElement, totalStockWarningThreshold) => {
+  const totalStock = productList.reduce((sum, product) => sum + product.quantity, 0);
+
+  const options = productList.map(item => {
+    const optionData = getOptionData(item);
+    return createElement("option", {
+      value: item.id,
+      textContent: optionData.textContent,
+      className: optionData.className,
+      disabled: optionData.disabled
+    });
+  });
+
+  productSelectElement.replaceChildren(...options);
+  productSelectElement.style.borderColor = totalStock < totalStockWarningThreshold ? "orange" : "";
 }; 

@@ -8,5 +8,6 @@ export {
 
 export { 
   displayPointsInfo, 
-  hidePointsIfEmpty 
+  hidePointsIfEmpty,
+  renderBonusPoints
 } from './ui/points-display.js'; 

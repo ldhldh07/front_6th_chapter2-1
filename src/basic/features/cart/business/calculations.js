@@ -95,4 +95,72 @@ export const calculateItemData = (cartItem, productList) => {
     discount,
     cartItem
   };
+};
+
+/**
+ * 장바구니 전체 계산을 수행합니다 (main.basic.js에서 계산 로직 분리)
+ * @param {HTMLCollection} cartItems - 장바구니 DOM 요소들
+ * @param {Array} productList - 상품 목록
+ * @param {Object} constants - 상수 객체
+ * @returns {Object} 완전한 장바구니 계산 결과
+ */
+export const calculateCompleteCartTotals = (cartItems, productList, constants) => {
+  const { TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE, POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD } = constants;
+  
+  let totalAmount = 0;
+  let itemCount = 0;
+  const itemDiscounts = [];
+
+  // 아이템별 계산 및 할인 수집
+  const subtotal = Array.from(cartItems).reduce((sum, cartItem) => {
+    const itemData = calculateItemData(cartItem, productList);
+    const { product, quantity, itemTotal, discount } = itemData;
+
+    itemCount += quantity;
+
+    if (discount > 0) {
+      itemDiscounts.push({ name: product.name, discount: discount * 100 });
+    }
+    totalAmount += itemTotal * (1 - discount);
+    
+    return sum + itemTotal;
+  }, 0);
+  
+  const originalTotal = subtotal;
+
+  // 대량구매 할인 적용
+  const bulkDiscount = applyBulkDiscount(itemCount, subtotal);
+  if (bulkDiscount) {
+    totalAmount = bulkDiscount.totalAmount;
+  }
+
+  // 화요일 할인 적용
+  const tuesdayDiscount = calculateTuesdayDiscount(totalAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
+  totalAmount = tuesdayDiscount.totalAmount;
+  const discRate = tuesdayDiscount.discRate;
+
+  // 재고 부족 상품 목록
+  const lowStockItems = productList
+    .filter(item => item.quantity < LOW_STOCK_THRESHOLD)
+    .map(item => item.quantity > 0 
+      ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
+      : `${item.name}: 품절`
+    );
+
+  // 적립 포인트 계산
+  const earnedPoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
+
+  return {
+    totalAmount,
+    itemCount,
+    originalTotal,
+    subtotal,
+    discRate,
+    isTuesday: tuesdayDiscount.isTuesday,
+    itemDiscounts,
+    bulkDiscount,
+    lowStockItems,
+    earnedPoints,
+    cartItemsData: Array.from(cartItems).map(cartItem => calculateItemData(cartItem, productList))
+  };
 }; 
