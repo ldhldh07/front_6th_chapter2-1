@@ -47,18 +47,18 @@ const LIGHTNING_SALE_MAX_DELAY = 10000;
 const LIGHTNING_SALE_DURATION = 30000;
 const SUGGESTION_SALE_MAX_DELAY = 20000;
 
-function getProductDiscountRate(productId) {
+const getProductDiscountRate = (productId) => {
   if (productId === PRODUCT_ONE) return KEYBOARD_DISCOUNT_RATE;
   if (productId === PRODUCT_TWO) return MOUSE_DISCOUNT_RATE;
   if (productId === PRODUCT_THREE) return MONITOR_ARM_DISCOUNT_RATE;
   if (productId === PRODUCT_FOUR) return SUGGESTION_DISCOUNT_RATE;
   if (productId === PRODUCT_FIVE) return SPEAKER_DISCOUNT_RATE;
   return 0;
-}
+};
 
-function findProductById(productId) {
+const findProductById = (productId) => {
   return productList.find(product => product.id === productId);
-}
+};
 
 
 
@@ -334,22 +334,15 @@ function main() {
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 }
 let sum;
-function updateSelectOptions() {
-  let totalStock;
-  let option;
-  let discountText;
+const updateSelectOptions = () => {
   productSelect.innerHTML = "";
-  totalStock = 0;
-  for (let index = 0; index < productList.length; index++) {
-    const product = productList[index];
-    totalStock = totalStock + product.quantity;
-  }
-  for (let i = 0; i < productList.length; i++) {
-    (function () {
-      const item = productList[i];
-      option = document.createElement("option");
+  
+  const totalStock = productList.reduce((sum, product) => sum + product.quantity, 0);
+  productList.forEach(item => {
+    const option = document.createElement("option");
       option.value = item.id;
-      discountText = "";
+      
+      let discountText = "";
       if (item.onSale) discountText += " ⚡SALE";
       if (item.suggestSale) discountText += " 💝추천";
       if (item.quantity === 0) {
@@ -394,14 +387,13 @@ function updateSelectOptions() {
         }
       }
       productSelect.appendChild(option);
-    })();
-  }
+    });
   if (totalStock < TOTAL_STOCK_WARNING_THRESHOLD) {
     productSelect.style.borderColor = "orange";
   } else {
     productSelect.style.borderColor = "";
   }
-}
+};
 function calculateCartTotals() {
   let subtotal;
   let savedAmount;
@@ -672,10 +664,10 @@ function renderBonusPoints() {
     }
   }
 };
-function getStockTotal() {
+const getStockTotal = () => {
   return productList.reduce((sum, product) => sum + product.quantity, 0);
-}
-function updateStockInformation() {
+};
+const updateStockInformation = () => {
   let infoMsg = "";
   const totalStock = getStockTotal();
 
@@ -690,7 +682,7 @@ function updateStockInformation() {
     }
   });
   stockInformation.textContent = infoMsg;
-}
+};
 function updatePricesInCart() {
   const cartItems = cartDisplay.children;
   for (let i = 0; i < cartItems.length; i++) {
