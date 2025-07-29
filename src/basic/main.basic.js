@@ -1,7 +1,4 @@
-// 🔥 Modern ES6 imports - Feature-First Architecture
 import * as constants from './constants/index.js';
-
-// 구조분해할당으로 필요한 상수들만 추출
 const {
   // 상품 ID
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
@@ -309,11 +306,10 @@ function main() {
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 }
 
-// Extract Method: option 생성 데이터를 경우별로 미리 정의하는 함수
 const getOptionData = (item) => {
   const discountText = (item.onSale ? " ⚡SALE" : "") + (item.suggestSale ? " 💝추천" : "");
   
-  // Early Return: 품절인 경우
+  // 품절인 경우
   if (item.quantity === 0) {
     return {
       textContent: `${item.name} - ${item.price}원 (품절)${discountText}`,
@@ -322,7 +318,7 @@ const getOptionData = (item) => {
     };
   }
   
-  // 경우별 매핑 객체 - 선언형 스타일
+  // 경우별 매핑 객체
   const saleTypeMap = {
     bothSales: item.onSale && item.suggestSale,
     lightningOnly: item.onSale && !item.suggestSale, 
@@ -353,7 +349,7 @@ const getOptionData = (item) => {
     }
   };
   
-  // 해당하는 경우 찾기 - 선언형 스타일
+  // 해당하는 경우 찾기
   const activeType = Object.keys(saleTypeMap).find(type => saleTypeMap[type]);
   return optionConfigs[activeType];
 };
@@ -372,14 +368,9 @@ const updateSelectOptions = () => {
       option.disabled = optionData.disabled;
       productSelect.appendChild(option);
     });
-  if (totalStock < TOTAL_STOCK_WARNING_THRESHOLD) {
-    productSelect.style.borderColor = "orange";
-  } else {
-    productSelect.style.borderColor = "";
-  }
+  productSelect.style.borderColor = totalStock < TOTAL_STOCK_WARNING_THRESHOLD ? "orange" : "";
 };
 
-// Extract Method: 아이템별 계산 로직 분리
 const calculateItemData = (cartItem) => {
   const product = findProductById(cartItem.id);
   const quantityElement = cartItem.querySelector(".quantity-number");
@@ -398,7 +389,6 @@ const calculateItemData = (cartItem) => {
   };
 };
 
-// Extract Method: 아이템 스타일 업데이트 로직 분리
 const updateItemStyles = (cartItem, quantity) => {
   const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
   priceElements.forEach(function (elem) {
@@ -408,7 +398,6 @@ const updateItemStyles = (cartItem, quantity) => {
   });
 };
 
-// Extract Method: 대량구매 할인 적용 로직 분리
 const applyBulkDiscount = (itemCount, subtotal) => {
   if (itemCount >= BULK_DISCOUNT_THRESHOLD) {
     return {
@@ -419,7 +408,6 @@ const applyBulkDiscount = (itemCount, subtotal) => {
   return null; // 대량구매 할인 미적용
 };
 
-// Extract Method: 화요일 할인 적용 로직 분리
 const applyTuesdayDiscount = (totalAmount, originalTotal) => {
   const today = new Date();
   const isTuesday = today.getDay() === TUESDAY_DAY_NUMBER;
@@ -554,13 +542,10 @@ function calculateCartTotals() {
   const loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
     earnedPoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
-    if (earnedPoints > 0) {
-      loyaltyPointsDiv.textContent = "적립 포인트: " + earnedPoints + "p";
-      loyaltyPointsDiv.style.display = "block";
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
-    }
+    loyaltyPointsDiv.textContent = earnedPoints > 0 
+      ? `적립 포인트: ${earnedPoints}p` 
+      : "적립 포인트: 0p";
+    loyaltyPointsDiv.style.display = "block";
   }
   const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
@@ -597,7 +582,6 @@ function calculateCartTotals() {
   renderBonusPoints();
 }
 
-// Extract Method: 장바구니 상품 유형 확인 로직 분리
 const getCartProductTypes = () => {
   const cartItems = Array.from(cartDisplay.children);
   
@@ -606,8 +590,8 @@ const getCartProductTypes = () => {
     if (!product) return types;
     
     if (product.id === PRODUCT_ONE) types.hasKeyboard = true;
-    else if (product.id === PRODUCT_TWO) types.hasMouse = true;
-    else if (product.id === PRODUCT_THREE) types.hasMonitorArm = true;
+    if (product.id === PRODUCT_TWO) types.hasMouse = true;
+    if (product.id === PRODUCT_THREE) types.hasMonitorArm = true;
     
     return types;
   }, { hasKeyboard: false, hasMouse: false, hasMonitorArm: false });
@@ -650,20 +634,16 @@ function renderBonusPoints() {
     pointsDetail.push(
       `대량구매(${LARGE_BULK_THRESHOLD}개+) +${LARGE_BULK_BONUS_POINTS}p`
     );
-  } else {
-    if (itemCount >= MEDIUM_BULK_THRESHOLD) {
-      finalPoints = finalPoints + MEDIUM_BULK_BONUS_POINTS;
-      pointsDetail.push(
-        `대량구매(${MEDIUM_BULK_THRESHOLD}개+) +${MEDIUM_BULK_BONUS_POINTS}p`
-      );
-    } else {
-      if (itemCount >= SMALL_BULK_THRESHOLD) {
-        finalPoints = finalPoints + SMALL_BULK_BONUS_POINTS;
-        pointsDetail.push(
-          `대량구매(${SMALL_BULK_THRESHOLD}개+) +${SMALL_BULK_BONUS_POINTS}p`
-        );
-      }
-    }
+  } else if (itemCount >= MEDIUM_BULK_THRESHOLD) {
+    finalPoints = finalPoints + MEDIUM_BULK_BONUS_POINTS;
+    pointsDetail.push(
+      `대량구매(${MEDIUM_BULK_THRESHOLD}개+) +${MEDIUM_BULK_BONUS_POINTS}p`
+    );
+  } else if (itemCount >= SMALL_BULK_THRESHOLD) {
+    finalPoints = finalPoints + SMALL_BULK_BONUS_POINTS;
+    pointsDetail.push(
+      `대량구매(${SMALL_BULK_THRESHOLD}개+) +${SMALL_BULK_BONUS_POINTS}p`
+    );
   }
   bonusPoints = finalPoints;
   const pointsTag = document.getElementById("loyalty-points");
