@@ -1,5 +1,7 @@
 import * as constants from './constants/index.js';
-import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes, calculateTuesdayDiscount, updateTuesdayUI } from './utils/index.js';
+import { getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes, updateTuesdayUI } from './utils/index.js';
+import { initializeProducts } from './features/products/index.js';
+import { getProductDiscountRate, applyBulkDiscount, calculateTuesdayDiscount } from './features/discounts/index.js';
 const {
   // 상품 ID 및 데이터
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
@@ -42,7 +44,7 @@ const initializeAppState = () => {
 };
 
 const initializeProductData = () => {
-  productList = [...INITIAL_PRODUCT_DATA];
+  productList = initializeProducts();
 };
 
 const main = () => {
