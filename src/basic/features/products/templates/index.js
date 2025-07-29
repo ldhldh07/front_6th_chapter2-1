@@ -1,0 +1,1 @@
+export { productSelectorTemplate } from './product-selector.js'; 
