@@ -103,12 +103,12 @@ export const calculateTuesdayDiscount = (totalAmount, originalTotal, tuesdayDayN
  */
 export const updateTuesdayUI = (isTuesday) => {
   const tuesdaySpecial = document.getElementById("tuesday-special");
-  if (tuesdaySpecial) {
-    if (isTuesday) {
-      tuesdaySpecial.classList.remove("hidden");
-      return;
-    }
-    
-    tuesdaySpecial.classList.add("hidden");
+  if (!tuesdaySpecial) return;
+  
+  if (isTuesday) {
+    tuesdaySpecial.classList.remove("hidden");
+    return;
   }
+  
+  tuesdaySpecial.classList.add("hidden");
 }; 

@@ -134,12 +134,12 @@ export const displayPointsInfo = (finalPoints, pointsDetail) => {
  * @param {number} cartItemsLength - 장바구니 아이템 수
  */
 export const hidePointsIfEmpty = (cartItemsLength) => {
-  if (cartItemsLength === 0) {
-    const pointsTag = document.getElementById("loyalty-points");
-    if (pointsTag) {
-      pointsTag.style.display = "none";
-    }
-  }
+  if (cartItemsLength !== 0) return;
+  
+  const pointsTag = document.getElementById("loyalty-points");
+  if (!pointsTag) return;
+  
+  pointsTag.style.display = "none";
 };
 
 /**

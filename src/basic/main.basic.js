@@ -41,9 +41,7 @@ const domRefs = {
 
 // ==================== Shared Utilities ====================
 
-
-
-// 매뉴얼 시스템은 app.js의 renderAppWithHTML에 포함됨
+// 매뉴얼 시스템은 app.js의 renderApp에 포함됨
 
 // ==================== App Logic ====================
 
@@ -110,32 +108,32 @@ const setupManualEvents = () => {
   const manualPanel = document.getElementById('manual-panel');
   const closeButton = document.querySelector('[data-action="close-manual"]');
   
-  if (helpButton && manualOverlay && manualPanel) {
-    // 도움말 버튼 클릭 (즉시 변경)
-    helpButton.addEventListener('click', () => {
-      manualOverlay.classList.remove('hidden');
-      manualPanel.classList.remove('translate-x-full');
-    });
-    
-    // 오버레이 클릭으로 닫기 (즉시 변경)
-    manualOverlay.addEventListener('click', (event) => {
-      if (event.target === manualOverlay) {
-        manualPanel.classList.add('translate-x-full');
-        manualOverlay.classList.add('hidden');
-      }
-    });
-    
-    // 닫기 버튼 클릭 (즉시 변경)
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        manualPanel.classList.add('translate-x-full');
-        manualOverlay.classList.add('hidden');
-      });
+  if (!helpButton || !manualOverlay || !manualPanel) return;
+  
+  // 도움말 버튼 클릭
+  helpButton.addEventListener('click', () => {
+    manualOverlay.classList.remove('hidden');
+    manualPanel.classList.remove('translate-x-full');
+  });
+  
+  // 오버레이 클릭으로 닫기 
+  manualOverlay.addEventListener('click', (event) => {
+    if (event.target === manualOverlay) {
+      manualPanel.classList.add('translate-x-full');
+      manualOverlay.classList.add('hidden');
     }
-  }
+  });
+  
+  // 닫기 버튼 클릭 
+  if (!closeButton) return;
+  
+  closeButton.addEventListener('click', () => {
+    manualPanel.classList.add('translate-x-full');
+    manualOverlay.classList.add('hidden');
+  });
 };
 
-// HTML 이벤트 시스템 준비 완료
+
 
 /**
  * 장바구니 총액 계산 및 UI 업데이트
@@ -164,7 +162,7 @@ const calculateCartTotals = () => {
 
 main();
 
-// 메인 이벤트 리스너
+// ==================== Event Listeners ====================
 domRefs.addButton.addEventListener("click", () => {
   const selectedItemId = domRefs.productSelect.value;
   

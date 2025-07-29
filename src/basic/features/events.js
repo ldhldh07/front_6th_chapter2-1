@@ -54,27 +54,28 @@ export const setupEventTimers = (config) => {
       if (domRefs.cartDisplay.children.length === 0) {
         return;
       }
-      if (appState.lastSelectedItem) {
-        const suggestedProduct = productList.find(product => 
-          product.id !== appState.lastSelectedItem && 
-          product.quantity > 0 && 
-          !product.suggestSale
-        );
-        if (suggestedProduct) {
-          alert(
-            "💝 " +
-              suggestedProduct.name +
-              "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!"
-          );
+      if (!appState.lastSelectedItem) return;
+      
+      const suggestedProduct = productList.find(product => 
+        product.id !== appState.lastSelectedItem && 
+        product.quantity > 0 && 
+        !product.suggestSale
+      );
+      
+      if (!suggestedProduct) return;
+      
+      alert(
+        "💝 " +
+          suggestedProduct.name +
+          "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!"
+      );
 
-          suggestedProduct.price = Math.round(
-            suggestedProduct.price * (1 - SUGGESTION_DISCOUNT_RATE)
-          );
-          suggestedProduct.suggestSale = true;
-          updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
-          updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
-        }
-      }
+      suggestedProduct.price = Math.round(
+        suggestedProduct.price * (1 - SUGGESTION_DISCOUNT_RATE)
+      );
+      suggestedProduct.suggestSale = true;
+      updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
+      updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
     }, SUGGESTION_INTERVAL_MS);
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 }; 
