@@ -2,7 +2,7 @@ import * as constants from './constants/index.js';
 import { initializeProducts, findProductById, getProductDisplayInfo, updateSelectOptions } from './features/products/index.js';
 import { updateTuesdayUI } from './features/discounts/index.js';
 import { getCartProductTypes, updatePricesInCart, calculateCompleteCartTotals, updateCartTotalsDisplay, handleAddToCart, handleCartActions } from './features/cart/index.js';
-import { updateItemStyles, setDOMRefs, createElement } from './shared/index.js';
+import { updateItemStyles, setDOMRefs, createElement, createManualSystem } from './shared/index.js';
 import { calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus, renderBonusPoints } from './features/points/index.js';
 import { setupEventTimers } from './features/events/index.js';
 import { headerTemplate, orderSummaryTemplate, manualGuideTemplate, helpToggleTemplate, cartSummaryTemplate, discountInfoTemplate } from './shared/templates/index.js';
@@ -93,35 +93,11 @@ const createDOMStructure = (root) => {
     className: "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden" 
   }, [leftColumn, rightColumn]);
 
-  const createManualSystem = () => {
-    const manualColumn = createElement("div", {
-      className: "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300",
-      innerHTML: manualGuideTemplate
-    });
-
-    const manualOverlay = createElement("div", {
-      className: "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300",
-      onclick: (event) => {
-        if (event.target === manualOverlay) {
-          manualOverlay.classList.add("hidden");
-          manualColumn.classList.add("translate-x-full");
-        }
-      }
-    }, [manualColumn]);
-
-    const manualToggle = createElement("button", {
-      className: "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50",
-      innerHTML: helpToggleTemplate,
-      onclick: () => {
-        manualOverlay.classList.toggle("hidden");
-        manualColumn.classList.toggle("translate-x-full");
-      }
-    });
-
-    return { manualToggle, manualOverlay };
-  };
-
-  const { manualToggle, manualOverlay } = createManualSystem();
+  const { manualToggle, manualOverlay } = createManualSystem({
+    createElement,
+    manualGuideTemplate,
+    helpToggleTemplate
+  });
 
   const appStructure = createElement("div", { className: "app-container" }, [
     header,
