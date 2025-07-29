@@ -279,10 +279,6 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < productList.length; i++) {
-    initStock += productList[i].quantity;
-  }
   updateSelectOptions();
   calculateCartTotals();
   const lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
@@ -411,7 +407,6 @@ function calculateCartTotals() {
   let savedAmount;
   let earnedPoints;
   let previousCount;
-  let stockMsg;
   totalAmount = 0;
   itemCount = 0;
   const cartItems = cartDisplay.children;
@@ -568,19 +563,13 @@ function calculateCartTotals() {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
-
-  for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-    const item = productList[stockIdx];
-    if (item.quantity < LOW_STOCK_THRESHOLD) {
-      if (item.quantity > 0) {
-        stockMsg =
-          stockMsg + item.name + ": 재고 부족 (" + item.quantity + "개 남음)\n";
-      } else {
-        stockMsg = stockMsg + item.name + ": 품절\n";
-      }
-    }
-  }
+  const stockMsg = productList
+    .filter(item => item.quantity < LOW_STOCK_THRESHOLD)
+    .map(item => item.quantity > 0 
+      ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
+      : `${item.name}: 품절`
+    )
+    .join('\n');
   stockInformation.textContent = stockMsg;
 
   updateStockInformation();
