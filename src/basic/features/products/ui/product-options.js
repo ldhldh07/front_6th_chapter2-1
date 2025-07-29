@@ -66,4 +66,48 @@ export const getOptionData = (item) => {
   // 해당하는 경우 찾기
   const activeType = Object.keys(saleTypeMap).find(type => saleTypeMap[type]);
   return optionConfigs[activeType];
+};
+
+/**
+ * 장바구니 내 상품의 표시 정보를 생성합니다 (main.basic.js에서 이전)
+ * @param {Object} product - 상품 정보 객체
+ * @param {string} product.name - 상품명
+ * @param {number} product.price - 현재 가격
+ * @param {number} product.originalPrice - 원래 가격
+ * @param {boolean} product.onSale - 번개세일 여부
+ * @param {boolean} product.suggestSale - 추천할인 여부
+ * @returns {Object} 표시 정보
+ * @returns {string} returns.priceHtml - 가격 HTML
+ * @returns {string} returns.nameText - 이름 텍스트
+ */
+export const getProductDisplayInfo = (product) => {
+  const hasBothSales = product.onSale && product.suggestSale;
+  const hasLightningSale = product.onSale && !product.suggestSale;
+  const hasSuggestionSale = !product.onSale && product.suggestSale;
+  
+  if (hasBothSales) {
+    return {
+      priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-purple-600">₩${product.price.toLocaleString()}</span>`,
+      nameText: "⚡💝" + product.name
+    };
+  }
+  
+  if (hasLightningSale) {
+    return {
+      priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-red-500">₩${product.price.toLocaleString()}</span>`,
+      nameText: "⚡" + product.name
+    };
+  }
+  
+  if (hasSuggestionSale) {
+    return {
+      priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-blue-500">₩${product.price.toLocaleString()}</span>`,
+      nameText: "💝" + product.name
+    };
+  }
+  
+  return {
+    priceHtml: `₩${product.price.toLocaleString()}`,
+    nameText: product.name
+  };
 }; 
