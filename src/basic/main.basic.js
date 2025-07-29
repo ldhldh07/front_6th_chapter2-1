@@ -1,11 +1,10 @@
 import * as constants from './constants/index.js';
+import { getProductDiscountRate, applyBulkDiscount, getOptionData, updateItemStyles } from './utils/index.js';
 const {
   // 상품 ID
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
-  // 할인 시스템
-  QUANTITY_DISCOUNT_THRESHOLD, BULK_DISCOUNT_THRESHOLD, 
-  KEYBOARD_DISCOUNT_RATE, MOUSE_DISCOUNT_RATE, MONITOR_ARM_DISCOUNT_RATE,
-  SPEAKER_DISCOUNT_RATE, BULK_DISCOUNT_RATE, SUGGESTION_DISCOUNT_RATE,
+  // 할인 시스템 (필요한 것만)
+  QUANTITY_DISCOUNT_THRESHOLD, SUGGESTION_DISCOUNT_RATE,
   TUESDAY_ADDITIONAL_DISCOUNT_RATE, LIGHTNING_SALE_DISCOUNT_RATE,
   // 포인트 시스템
   POINTS_CALCULATION_BASE, COMBO_BONUS_POINTS, FULL_SET_BONUS_POINTS,
@@ -26,14 +25,7 @@ let productSelect;
 let addButton;
 let totalAmount = 0;
 
-const getProductDiscountRate = (productId) => {
-  if (productId === PRODUCT_ONE) return KEYBOARD_DISCOUNT_RATE;
-  if (productId === PRODUCT_TWO) return MOUSE_DISCOUNT_RATE;
-  if (productId === PRODUCT_THREE) return MONITOR_ARM_DISCOUNT_RATE;
-  if (productId === PRODUCT_FOUR) return SUGGESTION_DISCOUNT_RATE;
-  if (productId === PRODUCT_FIVE) return SPEAKER_DISCOUNT_RATE;
-  return 0;
-};
+
 
 const findProductById = (productId) => {
   return productList.find(product => product.id === productId);
@@ -306,53 +298,7 @@ function main() {
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
 }
 
-const getOptionData = (item) => {
-  const discountText = (item.onSale ? " ⚡SALE" : "") + (item.suggestSale ? " 💝추천" : "");
-  
-  // 품절인 경우
-  if (item.quantity === 0) {
-    return {
-      textContent: `${item.name} - ${item.price}원 (품절)${discountText}`,
-      className: "text-gray-400",
-      disabled: true
-    };
-  }
-  
-  // 경우별 매핑 객체
-  const saleTypeMap = {
-    bothSales: item.onSale && item.suggestSale,
-    lightningOnly: item.onSale && !item.suggestSale, 
-    suggestionOnly: !item.onSale && item.suggestSale,
-    normal: !item.onSale && !item.suggestSale
-  };
-  
-  const optionConfigs = {
-    bothSales: {
-      textContent: `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`,
-      className: "text-purple-600 font-bold",
-      disabled: false
-    },
-    lightningOnly: {
-      textContent: `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`,
-      className: "text-red-500 font-bold", 
-      disabled: false
-    },
-    suggestionOnly: {
-      textContent: `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`,
-      className: "text-blue-500 font-bold",
-      disabled: false
-    },
-    normal: {
-      textContent: `${item.name} - ${item.price}원${discountText}`,
-      className: "",
-      disabled: false
-    }
-  };
-  
-  // 해당하는 경우 찾기
-  const activeType = Object.keys(saleTypeMap).find(type => saleTypeMap[type]);
-  return optionConfigs[activeType];
-};
+
 
 const updateSelectOptions = () => {
   productSelect.innerHTML = "";
@@ -389,24 +335,9 @@ const calculateItemData = (cartItem) => {
   };
 };
 
-const updateItemStyles = (cartItem, quantity) => {
-  const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
-  priceElements.forEach(function (elem) {
-    if (elem.classList.contains("text-lg")) {
-      elem.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
-    }
-  });
-};
 
-const applyBulkDiscount = (itemCount, subtotal) => {
-  if (itemCount >= BULK_DISCOUNT_THRESHOLD) {
-    return {
-      totalAmount: subtotal * (1 - BULK_DISCOUNT_RATE),
-      discRate: BULK_DISCOUNT_RATE
-    };
-  }
-  return null; // 대량구매 할인 미적용
-};
+
+
 
 const applyTuesdayDiscount = (totalAmount, originalTotal) => {
   const today = new Date();
