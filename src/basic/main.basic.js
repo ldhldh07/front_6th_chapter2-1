@@ -1,7 +1,9 @@
 import * as constants from './constants/index.js';
-import { getOptionData, updateItemStyles, findProductById, calculateItemData, getCartProductTypes, updateTuesdayUI } from './utils/index.js';
-import { initializeProducts } from './features/products/index.js';
-import { getProductDiscountRate, applyBulkDiscount, calculateTuesdayDiscount } from './features/discounts/index.js';
+import { initializeProducts, findProductById, getOptionData } from './features/products/index.js';
+import { getProductDiscountRate, applyBulkDiscount, calculateTuesdayDiscount, updateTuesdayUI } from './features/discounts/index.js';
+import { calculateItemData, getCartProductTypes } from './features/cart/index.js';
+import { updateItemStyles } from './shared/index.js';
+import { calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus, displayPointsInfo, hidePointsIfEmpty } from './features/points/index.js';
 const {
   // 상품 ID 및 데이터
   PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE,
@@ -439,70 +441,46 @@ const updateSelectOptions = () => {
 
 
 const renderBonusPoints = () => {
-  if (cartDisplay.children.length === 0) {
-    document.getElementById("loyalty-points").style.display = "none";
-    return;
-  }
+  // 장바구니가 비어있으면 포인트 UI 숨김
+  hidePointsIfEmpty(cartDisplay.children.length);
+  if (cartDisplay.children.length === 0) return;
   
-  const basePoints = Math.floor(totalAmount / POINTS_CALCULATION_BASE);
+  // 기본 포인트 계산
+  const basePoints = calculateBasePoints(totalAmount);
   let finalPoints = 0;
   const pointsDetail = [];
 
-
-
+  // 기본 포인트 적용
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push("기본: " + basePoints + "p");
   }
-  if (new Date().getDay() === TUESDAY_DAY_NUMBER) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push("화요일 2배");
-    }
+  
+  // 화요일 보너스 계산
+  const tuesdayBonus = calculateTuesdayBonus(basePoints);
+  if (tuesdayBonus.applied) {
+    finalPoints = tuesdayBonus.points;
+    pointsDetail.push(tuesdayBonus.description);
   }
-  const { hasKeyboard, hasMouse, hasMonitorArm } = getCartProductTypes(cartDisplay.children, productList);
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + COMBO_BONUS_POINTS;
-    pointsDetail.push(`키보드+마우스 세트 +${COMBO_BONUS_POINTS}p`);
+  
+  // 콤보 보너스 계산
+  const productTypes = getCartProductTypes(cartDisplay.children, productList);
+  const comboBonuses = calculateComboBonuses(productTypes);
+  comboBonuses.forEach(bonus => {
+    finalPoints += bonus.points;
+    pointsDetail.push(bonus.description);
+  });
+  
+  // 대량구매 보너스 계산
+  const bulkBonus = calculateBulkBonus(itemCount);
+  if (bulkBonus) {
+    finalPoints += bulkBonus.points;
+    pointsDetail.push(bulkBonus.description);
   }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + FULL_SET_BONUS_POINTS;
-    pointsDetail.push(`풀세트 구매 +${FULL_SET_BONUS_POINTS}p`);
-  }
-
-  if (itemCount >= LARGE_BULK_THRESHOLD) {
-    finalPoints = finalPoints + LARGE_BULK_BONUS_POINTS;
-    pointsDetail.push(
-      `대량구매(${LARGE_BULK_THRESHOLD}개+) +${LARGE_BULK_BONUS_POINTS}p`
-    );
-  } else if (itemCount >= MEDIUM_BULK_THRESHOLD) {
-    finalPoints = finalPoints + MEDIUM_BULK_BONUS_POINTS;
-    pointsDetail.push(
-      `대량구매(${MEDIUM_BULK_THRESHOLD}개+) +${MEDIUM_BULK_BONUS_POINTS}p`
-    );
-  } else if (itemCount >= SMALL_BULK_THRESHOLD) {
-    finalPoints = finalPoints + SMALL_BULK_BONUS_POINTS;
-    pointsDetail.push(
-      `대량구매(${SMALL_BULK_THRESHOLD}개+) +${SMALL_BULK_BONUS_POINTS}p`
-    );
-  }
+  
+  // 전역 상태 업데이트 및 UI 표시
   bonusPoints = finalPoints;
-  const pointsTag = document.getElementById("loyalty-points");
-  if (pointsTag) {
-    if (bonusPoints > 0) {
-      pointsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPoints +
-        "p</span></div>" +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(", ") +
-        "</div>";
-      pointsTag.style.display = "block";
-    } else {
-      pointsTag.textContent = "적립 포인트: 0p";
-      pointsTag.style.display = "block";
-    }
-  }
+  displayPointsInfo(finalPoints, pointsDetail);
 };
 
 const updatePricesInCart = () => {

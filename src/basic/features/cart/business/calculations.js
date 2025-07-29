@@ -1,5 +1,8 @@
-import { calculateItemData } from '../../../utils/index.js';
 import { applyBulkDiscount, calculateTuesdayDiscount } from '../../../utils/index.js';
+import { getProductDiscountRate } from '../../../features/discounts/index.js';
+import * as constants from '../../../constants/index.js';
+
+const { QUANTITY_DISCOUNT_THRESHOLD } = constants;
 
 /**
  * 장바구니 총 금액 및 할인을 계산합니다
@@ -68,5 +71,29 @@ export const updateCartState = (cartState, newData) => {
     itemCount: newData.itemCount,
     discRate: newData.discRate,
     isTuesday: newData.isTuesday
+  };
+};
+
+/**
+ * 장바구니 아이템의 계산 데이터를 생성합니다 (utils에서 이전)
+ * @param {HTMLElement} cartItem - 장바구니 DOM 요소
+ * @param {Array} productList - 상품 목록 배열
+ * @returns {Object} 아이템 계산 정보
+ */
+export const calculateItemData = (cartItem, productList) => {
+  const product = productList.find(product => product.id === cartItem.id);
+  const quantityElement = cartItem.querySelector(".quantity-number");
+  const quantity = parseInt(quantityElement.textContent);
+  const itemTotal = product.price * quantity;
+  const discount = quantity >= QUANTITY_DISCOUNT_THRESHOLD 
+    ? getProductDiscountRate(product.id) 
+    : 0;
+  
+  return {
+    product,
+    quantity,
+    itemTotal,
+    discount,
+    cartItem
   };
 }; 
