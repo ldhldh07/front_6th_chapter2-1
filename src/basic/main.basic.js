@@ -285,18 +285,11 @@ function main() {
         return;
       }
       if (lastSelectedItem) {
-        let suggest = null;
-
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelectedItem) {
-            if (productList[k].quantity > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
-                break;
-              }
-            }
-          }
-        }
+        const suggest = productList.find(product => 
+          product.id !== lastSelectedItem && 
+          product.quantity > 0 && 
+          !product.suggestSale
+        );
         if (suggest) {
           alert(
             "💝 " +
@@ -324,9 +317,7 @@ const updateSelectOptions = () => {
     const option = document.createElement("option");
       option.value = item.id;
       
-      let discountText = "";
-      if (item.onSale) discountText += " ⚡SALE";
-      if (item.suggestSale) discountText += " 💝추천";
+      const discountText = (item.onSale ? " ⚡SALE" : "") + (item.suggestSale ? " 💝추천" : "");
       if (item.quantity === 0) {
         option.textContent =
           item.name + " - " + item.price + "원 (품절)" + discountText;
@@ -444,14 +435,13 @@ const applyTuesdayDiscount = (totalAmount, originalTotal) => {
 };
 
 function calculateCartTotals() {
-  let subtotal;
   let savedAmount;
   let earnedPoints;
   let previousCount;
   totalAmount = 0;
   itemCount = 0;
   const cartItems = cartDisplay.children;
-  subtotal = 0;
+  let subtotal = 0;
   const itemDiscounts = [];
   
   Array.from(cartItems).forEach(cartItem => {
