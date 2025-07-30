@@ -28,6 +28,21 @@ export const useDiscounts = () => {
   } as const;
 
   /**
+   * 할인 타입을 결정합니다
+   */
+  const determineDiscountType = (
+    isBulkDiscount: boolean,
+    isTuesday: boolean, 
+    hasItemDiscounts: boolean
+  ): DiscountResult['type'] => {
+    if (isBulkDiscount && isTuesday) return 'combined';
+    if (isBulkDiscount) return 'bulk';
+    if (isTuesday) return 'tuesday';
+    if (hasItemDiscounts) return 'product';
+    return 'none';
+  };
+
+  /**
    * 상품별 할인율을 반환합니다
    */
   const getProductDiscountRate = useCallback((productId: string): number => {
@@ -92,70 +107,67 @@ export const useDiscounts = () => {
   /**
    * 전체 할인을 계산합니다
    */
-  const calculateDiscounts = useCallback((
-    cartItems: CartItem[], 
+    const calculateDiscounts = useCallback((
+    cartItems: CartItem[],
     products: Product[]
   ): DiscountResult => {
-    let subtotal = 0;
-    let totalAmount = 0;
-    let itemDiscounts: DiscountInfo[] = [];
     const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     // 1. 개별 상품 할인 계산
-    cartItems.forEach(cartItem => {
+    const { subtotal, totalAmount, itemDiscounts } = cartItems.reduce((acc, cartItem) => {
       const product = products.find(p => p.id === cartItem.id);
-      if (!product) return;
+      if (!product) return acc;
 
       const itemTotal = product.price * cartItem.quantity;
-      subtotal += itemTotal;
+      const newSubtotal = acc.subtotal + itemTotal;
 
       const discountRate = applyProductDiscount(product, cartItem.quantity, QUANTITY_DISCOUNT_THRESHOLD);
       if (discountRate > 0) {
-        itemDiscounts.push({
-          name: product.name,
-          discount: discountRate * 100
-        });
-        totalAmount += itemTotal * (1 - discountRate);
-      } else {
-        totalAmount += itemTotal;
+        return {
+          subtotal: newSubtotal,
+          totalAmount: acc.totalAmount + itemTotal * (1 - discountRate),
+          itemDiscounts: [...acc.itemDiscounts, {
+            name: product.name,
+            discount: discountRate * 100
+          }]
+        };
       }
-    });
+      
+      return {
+        subtotal: newSubtotal,
+        totalAmount: acc.totalAmount + itemTotal,
+        itemDiscounts: acc.itemDiscounts
+      };
+    }, { subtotal: 0, totalAmount: 0, itemDiscounts: [] as DiscountInfo[] });
 
-    // 2. 대량구매 할인 확인
+        // 2. 대량구매 할인 확인
     const bulkDiscountResult = applyBulkDiscount(itemCount, subtotal);
     const isBulkDiscount = bulkDiscountResult !== null;
-    
-    if (isBulkDiscount) {
-      totalAmount = bulkDiscountResult.totalAmount;
-      itemDiscounts = []; // 대량구매 할인이 개별 할인보다 우선
-    }
+
+    const finalTotalAmount = isBulkDiscount ? bulkDiscountResult.totalAmount : totalAmount;
+    const finalItemDiscounts = isBulkDiscount ? [] : itemDiscounts; // 대량구매 할인이 개별 할인보다 우선
 
     // 3. 화요일 할인 적용
-    const tuesdayResult = calculateTuesdayDiscount(totalAmount, subtotal);
-    totalAmount = tuesdayResult.totalAmount;
+    const tuesdayResult = calculateTuesdayDiscount(finalTotalAmount, subtotal);
+    const finalAmount = tuesdayResult.totalAmount;
 
     // 4. 최종 할인율 계산
-    const finalDiscRate = subtotal > 0 ? 1 - totalAmount / subtotal : 0;
-    const savedAmount = subtotal - totalAmount;
+    const finalDiscRate = subtotal > 0 ? 1 - finalAmount / subtotal : 0;
+    const savedAmount = subtotal - finalAmount;
 
     // 5. 할인 타입 결정
-    let discountType: DiscountResult['type'] = 'none';
-    if (isBulkDiscount && tuesdayResult.isTuesday) {
-      discountType = 'combined';
-    } else if (isBulkDiscount) {
-      discountType = 'bulk';
-    } else if (tuesdayResult.isTuesday) {
-      discountType = 'tuesday';
-    } else if (itemDiscounts.length > 0) {
-      discountType = 'product';
-    }
+    const discountType = determineDiscountType(
+      isBulkDiscount,
+      tuesdayResult.isTuesday,
+      finalItemDiscounts.length > 0
+    );
 
     return {
-      totalAmount: Math.round(totalAmount),
+      totalAmount: Math.round(finalAmount),
       discRate: finalDiscRate,
       type: discountType,
       savedAmount: Math.round(savedAmount),
-      itemDiscounts,
+      itemDiscounts: finalItemDiscounts,
       isBulkDiscount,
       isTuesday: tuesdayResult.isTuesday
     };
