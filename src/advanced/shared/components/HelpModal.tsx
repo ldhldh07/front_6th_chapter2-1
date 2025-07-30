@@ -1,14 +1,25 @@
 interface HelpModalProps {
   isOpen: boolean;
+  isClosing?: boolean;
   onClose: () => void;
 }
 
-export const HelpModal = ({ isOpen, onClose }: HelpModalProps) => {
+export const HelpModal = ({ isOpen, isClosing = false, onClose }: HelpModalProps) => {
   if (!isOpen) return null;
 
+  // 배경 클릭시 모달 닫기 (오리지널 동작 복원)
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300">
-      <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform transition-transform duration-300">
+    <div 
+      className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+      onClick={handleOverlayClick}
+    >
+      <div className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform transition-transform duration-300 ${isClosing ? 'translate-x-full' : 'translate-x-0'}`}>
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-black"

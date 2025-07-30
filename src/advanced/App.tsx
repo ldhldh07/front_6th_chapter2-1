@@ -5,7 +5,7 @@ import { useCart, CartItems } from './features/cart';
 import { useProducts, ProductSelector } from './features/products';
 import { useDiscounts } from './features/discounts';
 import { usePoints } from './features/points';
-import { useEvents, EventNotifications } from './features/events';
+import { useEvents } from './features/events';
 import { Header, OrderSummary, HelpModal } from './shared/components';
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
   const { calculatePoints } = usePoints();
   const [selectedProductId, setSelectedProductId] = useState('');
   const [showManual, setShowManual] = useState(false);
+  const [isManualClosing, setIsManualClosing] = useState(false);
   const [lastSelectedItem, setLastSelectedItem] = useState<string | null>(null);
 
   // 할인 계산
@@ -28,7 +29,7 @@ function App() {
   }, [calculatePoints, cartItems, products, discountResult.totalAmount]);
 
   // 이벤트 시스템
-  const { notifications, closeNotification } = useEvents({
+  useEvents({
     products,
     setProducts,
     cartItems,
@@ -101,9 +102,21 @@ function App() {
         />
       </div>
 
-      {/* Help Button */}
-      <button 
-        onClick={() => setShowManual(true)}
+            {/* Help Button */}
+      <button
+        onClick={() => {
+          if (showManual && !isManualClosing) {
+            // 모달이 열려있으면 닫기
+            setIsManualClosing(true);
+            setTimeout(() => {
+              setShowManual(false);
+              setIsManualClosing(false);
+            }, 300);
+          } else {
+            // 모달이 닫혀있으면 열기
+            setShowManual(true);
+          }
+        }}
         className="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,14 +127,18 @@ function App() {
       {/* Help Modal */}
       <HelpModal
         isOpen={showManual}
-        onClose={() => setShowManual(false)}
+        isClosing={isManualClosing}
+        onClose={() => {
+          setIsManualClosing(true);
+          setTimeout(() => {
+            setShowManual(false);
+            setIsManualClosing(false);
+          }, 300);
+        }}
       />
 
       {/* Event Notifications */}
-      <EventNotifications
-        notifications={notifications}
-        onClose={closeNotification}
-      />
+
     </div>
   );
 }
