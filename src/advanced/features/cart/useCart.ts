@@ -5,37 +5,7 @@ export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
-  const decreaseProductStock = (productId: string, decreaseAmount: number) => {
-    setProducts(previousProducts => 
-      previousProducts.map(product => 
-        product.id === productId 
-          ? { ...product, quantity: product.quantity - decreaseAmount }
-          : product
-      )
-    );
-  };
 
-  const increaseProductStock = (productId: string, increaseAmount: number) => {
-    setProducts(previousProducts => 
-      previousProducts.map(product => 
-        product.id === productId 
-          ? { ...product, quantity: product.quantity + increaseAmount }
-          : product
-      )
-    );
-  };
-
-  const updateCartItemQuantity = (cartItems: CartItem[], productId: string, newQuantity: number): CartItem[] => {
-    return cartItems.map(item =>
-      item.id === productId 
-        ? { ...item, quantity: newQuantity }
-        : item
-    );
-  };
-
-  const addNewCartItem = (cartItems: CartItem[], productId: string): CartItem[] => {
-    return [...cartItems, { id: productId, quantity: 1 }];
-  };
 
   const handleAddToCart = (selectedItemId: string, productList: Product[]) => {
     const selectedProduct = productList.find(product => product.id === selectedItemId);
@@ -48,87 +18,103 @@ export const useCart = () => {
       return { success: false, reason: 'out_of_stock' };
     }
 
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === selectedProduct.id);
+    const existingItem = cartItems.find(item => item.id === selectedProduct.id);
+    
+    if (!existingItem) {
+      setCartItems(prev => [...prev, { id: selectedProduct.id, quantity: 1 }]);
+      setProducts(prev => prev.map(product => 
+        product.id === selectedProduct.id 
+          ? { ...product, quantity: product.quantity - 1 }
+          : product
+      ));
+    } else {
+      const newQuantity = existingItem.quantity + 1;
       
-      if (!existingItem) {
-        decreaseProductStock(selectedProduct.id, 1);
-        return addNewCartItem(prevItems, selectedProduct.id);
+      if (newQuantity > selectedProduct.quantity + existingItem.quantity) {
+        return { success: false, reason: 'out_of_stock' };
       }
 
-      const currentQuantity = existingItem.quantity;
-      const newQuantity = currentQuantity + 1;
-      
-      if (newQuantity > selectedProduct.quantity + currentQuantity) {
-        return prevItems;
-      }
-
-      decreaseProductStock(selectedProduct.id, 1);
-      return updateCartItemQuantity(prevItems, selectedProduct.id, newQuantity);
-    });
+      setCartItems(prev => prev.map(item =>
+        item.id === selectedProduct.id 
+          ? { ...item, quantity: newQuantity }
+          : item
+      ));
+      setProducts(prev => prev.map(product => 
+        product.id === selectedProduct.id 
+          ? { ...product, quantity: product.quantity - 1 }
+          : product
+      ));
+    }
 
     return { success: true };
   };
 
-  const removeCartItem = (cartItems: CartItem[], productId: string): CartItem[] => {
-    return cartItems.filter(item => item.id !== productId);
+
+
+  const removeItemFromCart = (productId: string, cartItem: CartItem) => {
+    setCartItems(prev => prev.filter(item => item.id !== productId));
+    setProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { ...product, quantity: product.quantity + cartItem.quantity }
+        : product
+    ));
+    return { success: true };
   };
 
-  const handleRemoveAction = (cartItems: CartItem[], productId: string) => {
-    const cartItem = cartItems.find(item => item.id === productId);
-    if (!cartItem) return cartItems;
-
-    increaseProductStock(productId, cartItem.quantity);
-    return removeCartItem(cartItems, productId);
-  };
-
-  const handleIncreaseAction = (cartItems: CartItem[], productId: string, product: Product) => {
-    const cartItem = cartItems.find(item => item.id === productId);
-    if (!cartItem) return cartItems;
-
-    const newQuantity = cartItem.quantity + 1;
-    if (newQuantity > product.quantity + cartItem.quantity) {
-      return cartItems;
+  const increaseCartItemQuantity = (productId: string, product: Product) => {
+    if (product.quantity <= 0) {
+      return { success: false, reason: 'out_of_stock' };
     }
-
-    decreaseProductStock(productId, 1);
-    return updateCartItemQuantity(cartItems, productId, newQuantity);
+    
+    setCartItems(prev => prev.map(item =>
+      item.id === productId 
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    ));
+    setProducts(prev => prev.map(p => 
+      p.id === productId 
+        ? { ...p, quantity: p.quantity - 1 }
+        : p
+    ));
+    return { success: true };
   };
 
-  const handleDecreaseAction = (cartItems: CartItem[], productId: string) => {
-    const cartItem = cartItems.find(item => item.id === productId);
-    if (!cartItem) return cartItems;
-
+  const decreaseCartItemQuantity = (productId: string, cartItem: CartItem) => {
     const newQuantity = cartItem.quantity - 1;
     
     if (newQuantity <= 0) {
-      increaseProductStock(productId, cartItem.quantity);
-      return removeCartItem(cartItems, productId);
+      return removeItemFromCart(productId, cartItem);
     }
 
-    increaseProductStock(productId, 1);
-    return updateCartItemQuantity(cartItems, productId, newQuantity);
+    setCartItems(prev => prev.map(item =>
+      item.id === productId 
+        ? { ...item, quantity: newQuantity }
+        : item
+    ));
+    setProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { ...product, quantity: product.quantity + 1 }
+        : product
+    ));
+    return { success: true };
   };
 
   const handleCartActions = (action: 'increase' | 'decrease' | 'remove', productId: string, productList: Product[]) => {
     const product = productList.find(productItem => productItem.id === productId);
-    
     if (!product) {
       return { success: false, reason: 'product_not_found' };
     }
 
-    setCartItems(prevItems => {
-      const cartItem = prevItems.find(item => item.id === productId);
-      if (!cartItem) return prevItems;
+    const cartItem = cartItems.find(item => item.id === productId);
+    if (!cartItem) {
+      return { success: false, reason: 'item_not_found' };
+    }
 
-      if (action === 'remove') return handleRemoveAction(prevItems, productId);
-      if (action === 'increase') return handleIncreaseAction(prevItems, productId, product);
-      if (action === 'decrease') return handleDecreaseAction(prevItems, productId);
+    if (action === 'remove') return removeItemFromCart(productId, cartItem);
+    if (action === 'increase') return increaseCartItemQuantity(productId, product);
+    if (action === 'decrease') return decreaseCartItemQuantity(productId, cartItem);
 
-      return prevItems;
-    });
-
-    return { success: true };
+    return { success: false, reason: 'invalid_action' };
   };
 
   return {
