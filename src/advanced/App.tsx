@@ -5,6 +5,7 @@ import { useCart, CartItems } from './features/cart';
 import { useProducts, ProductSelector } from './features/products';
 import { useDiscounts } from './features/discounts';
 import { usePoints } from './features/points';
+import { useEvents, EventNotifications } from './features/events';
 import { Header, OrderSummary, HelpModal } from './shared/components';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const { calculatePoints } = usePoints();
   const [selectedProductId, setSelectedProductId] = useState('');
   const [showManual, setShowManual] = useState(false);
+  const [lastSelectedItem, setLastSelectedItem] = useState<string | null>(null);
 
   // 할인 계산
   const discountResult = useMemo(() => {
@@ -24,6 +26,14 @@ function App() {
   const pointsResult = useMemo(() => {
     return calculatePoints(cartItems, products, discountResult.totalAmount);
   }, [calculatePoints, cartItems, products, discountResult.totalAmount]);
+
+  // 이벤트 시스템
+  const { notifications, closeNotification } = useEvents({
+    products,
+    setProducts,
+    cartItems,
+    lastSelectedItem
+  });
   
   useEffect(() => {
     setProducts([...INITIAL_PRODUCT_DATA]);
@@ -42,6 +52,8 @@ function App() {
       } else {
         alert('상품을 추가할 수 없습니다.');
       }
+    } else {
+      setLastSelectedItem(selectedProductId);
     }
     setSelectedProductId('');
   };
@@ -103,6 +115,12 @@ function App() {
       <HelpModal
         isOpen={showManual}
         onClose={() => setShowManual(false)}
+      />
+
+      {/* Event Notifications */}
+      <EventNotifications
+        notifications={notifications}
+        onClose={closeNotification}
       />
     </div>
   );

@@ -49,6 +49,17 @@ export const BULK_THRESHOLDS = {
   LARGE: 30
 } as const;
 
+// ==================== Events Constants ====================
+
+export const EVENT_CONFIG = {
+  LIGHTNING_SALE_MAX_DELAY: 10000,
+  LIGHTNING_SALE_DURATION: 30000,
+  LIGHTNING_SALE_DISCOUNT_RATE: 0.2,
+  SUGGESTION_SALE_MAX_DELAY: 20000,
+  SUGGESTION_INTERVAL_MS: 60000,
+  SUGGESTION_DISCOUNT_RATE: 0.05
+} as const;
+
 // ==================== Business Logic Constants ====================
 
 export const TUESDAY_DAY_NUMBER = 2;

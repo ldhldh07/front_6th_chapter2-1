@@ -71,4 +71,6 @@ export interface PointsResult {
   basePoints: number;
   bonusDetails: string[];
   isTuesday: boolean;
-} 
+}
+
+ 
