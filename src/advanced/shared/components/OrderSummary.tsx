@@ -1,12 +1,13 @@
-import type { CartItem, Product, DiscountResult } from '../types';
+import type { CartItem, Product, DiscountResult, PointsResult } from '../types';
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
   products: Product[];
   discountResult: DiscountResult;
+  pointsResult: PointsResult;
 }
 
-export const OrderSummary = ({ cartItems, products, discountResult }: OrderSummaryProps) => {
+export const OrderSummary = ({ cartItems, products, discountResult, pointsResult }: OrderSummaryProps) => {
   const subtotal = cartItems.reduce((total, item) => {
     const product = products.find(p => p.id === item.id);
     return total + (product ? product.price * item.quantity : 0);
@@ -87,7 +88,16 @@ export const OrderSummary = ({ cartItems, products, discountResult }: OrderSumma
               </div>
             </div>
             <div id="loyalty-points" className="text-xs text-blue-400 mt-2 text-right">
-              적립 포인트: {Math.floor(discountResult.totalAmount / 1000)}p
+              {pointsResult.totalPoints > 0 ? (
+                <div>
+                  <div>적립 포인트: <span className="font-bold">{pointsResult.totalPoints}p</span></div>
+                  {pointsResult.bonusDetails.length > 0 && (
+                    <div className="text-2xs opacity-70 mt-1">{pointsResult.bonusDetails.join(', ')}</div>
+                  )}
+                </div>
+              ) : (
+                <div>적립 포인트: 0p</div>
+              )}
             </div>
           </div>
           

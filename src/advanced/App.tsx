@@ -4,12 +4,14 @@ import type { Product } from './shared/types';
 import { useCart, CartItems } from './features/cart';
 import { useProducts, ProductSelector } from './features/products';
 import { useDiscounts } from './features/discounts';
+import { usePoints } from './features/points';
 import { Header, OrderSummary, HelpModal } from './shared/components';
 
 function App() {
   const { cartItems, products, setProducts, handleAddToCart, handleCartActions } = useCart();
   const { getOptionData, getLowStockProducts } = useProducts();
   const { calculateDiscounts } = useDiscounts();
+  const { calculatePoints } = usePoints();
   const [selectedProductId, setSelectedProductId] = useState('');
   const [showManual, setShowManual] = useState(false);
 
@@ -17,6 +19,11 @@ function App() {
   const discountResult = useMemo(() => {
     return calculateDiscounts(cartItems, products);
   }, [calculateDiscounts, cartItems, products]);
+
+  // 포인트 계산
+  const pointsResult = useMemo(() => {
+    return calculatePoints(cartItems, products, discountResult.totalAmount);
+  }, [calculatePoints, cartItems, products, discountResult.totalAmount]);
   
   useEffect(() => {
     setProducts([...INITIAL_PRODUCT_DATA]);
@@ -78,6 +85,7 @@ function App() {
           cartItems={cartItems}
           products={products}
           discountResult={discountResult}
+          pointsResult={pointsResult}
         />
       </div>
 

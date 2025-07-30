@@ -32,6 +32,23 @@ export const DISCOUNT_RATES = {
 export const QUANTITY_DISCOUNT_THRESHOLD = 10;
 export const BULK_DISCOUNT_THRESHOLD = 30;
 
+// ==================== Points Constants ====================
+
+export const POINTS = {
+  CALCULATION_BASE: 1000,
+  COMBO_BONUS: 50,
+  FULL_SET_BONUS: 100,
+  SMALL_BULK_BONUS: 20,
+  MEDIUM_BULK_BONUS: 50,
+  LARGE_BULK_BONUS: 100
+} as const;
+
+export const BULK_THRESHOLDS = {
+  SMALL: 10,
+  MEDIUM: 20,
+  LARGE: 30
+} as const;
+
 // ==================== Business Logic Constants ====================
 
 export const TUESDAY_DAY_NUMBER = 2;

@@ -47,4 +47,28 @@ export interface TuesdayDiscountResult {
   discRate: number;
   isTuesday: boolean;
   type: DiscountType;
+}
+
+// ==================== Points Types ====================
+
+export interface PointsBonus {
+  points: number;
+  description: string;
+}
+
+export interface TuesdayPointsBonus extends PointsBonus {
+  applied: boolean;
+}
+
+export interface ProductTypes {
+  hasKeyboard: boolean;
+  hasMouse: boolean;
+  hasMonitorArm: boolean;
+}
+
+export interface PointsResult {
+  totalPoints: number;
+  basePoints: number;
+  bonusDetails: string[];
+  isTuesday: boolean;
 } 
