@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Product, CartItem } from '../../../shared/types';
+import type { Product, CartItem } from '../../shared/types';
 
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
