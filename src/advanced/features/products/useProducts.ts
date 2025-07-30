@@ -35,17 +35,18 @@ export const useProducts = () => {
     };
   };
 
+  const formatPriceDisplay = (basePrice: number, currentPrice: number, hasDiscount: boolean) => {
+    if (!hasDiscount) return `${currentPrice.toLocaleString()}원`;
+    
+    const discountRate = Math.round(((basePrice - currentPrice) / basePrice) * 100);
+    return `<span class="line-through text-gray-400">${basePrice.toLocaleString()}원</span> → <span class="text-red-600 font-semibold">${currentPrice.toLocaleString()}원 (${discountRate}% 할인)</span>`;
+  };
+
   const getProductDisplayInfo = (product: Product) => {
     const basePrice = product.originalPrice;
     const currentPrice = product.price;
     const hasDiscount = currentPrice < basePrice;
-
-    let priceDisplay = `${currentPrice.toLocaleString()}원`;
-    
-    if (hasDiscount) {
-      const discountRate = Math.round(((basePrice - currentPrice) / basePrice) * 100);
-      priceDisplay = `<span class="line-through text-gray-400">${basePrice.toLocaleString()}원</span> → <span class="text-red-600 font-semibold">${currentPrice.toLocaleString()}원 (${discountRate}% 할인)</span>`;
-    }
+    const priceDisplay = formatPriceDisplay(basePrice, currentPrice, hasDiscount);
 
     return {
       id: product.id,
@@ -58,8 +59,7 @@ export const useProducts = () => {
     };
   };
 
-
-
+  
   return {
     products,
     setProducts,
