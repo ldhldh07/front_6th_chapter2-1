@@ -21,4 +21,30 @@ export interface AppState {
   itemCount: number;
   lastSelectedItem: string | null;
   bonusPoints: number;
+}
+
+// ==================== Discount Types ====================
+
+export type DiscountType = 'none' | 'product' | 'bulk' | 'tuesday' | 'combined';
+
+export interface DiscountInfo {
+  name: string;
+  discount: number;
+}
+
+export interface DiscountResult {
+  totalAmount: number;
+  discRate: number;
+  type: DiscountType;
+  savedAmount: number;
+  itemDiscounts: DiscountInfo[];
+  isBulkDiscount: boolean;
+  isTuesday: boolean;
+}
+
+export interface TuesdayDiscountResult {
+  totalAmount: number;
+  discRate: number;
+  isTuesday: boolean;
+  type: DiscountType;
 } 

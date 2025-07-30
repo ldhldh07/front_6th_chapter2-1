@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import { INITIAL_PRODUCT_DATA, TOTAL_STOCK_WARNING_THRESHOLD } from './shared/constants';
 import type { Product } from './shared/types';
-import { useCart } from './features/cart';
-import { useProducts } from './features/products';
+import { useCart, CartItems } from './features/cart';
+import { useProducts, ProductSelector } from './features/products';
 import { useDiscounts } from './features/discounts';
-import { Header, ProductSelector, CartItems, OrderSummary, HelpModal } from './shared/components';
+import { Header, OrderSummary, HelpModal } from './shared/components';
 
 function App() {
   const { cartItems, products, setProducts, handleAddToCart, handleCartActions } = useCart();

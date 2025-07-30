@@ -16,6 +16,22 @@ export const INITIAL_PRODUCT_DATA = [
   { id: PRODUCT_IDS.SPEAKER, name: '코딩할 때 듣는 Lo-Fi 스피커', price: 25000, originalPrice: 25000, quantity: 10, onSale: false, suggestSale: false }
 ];
 
+// ==================== Discount Constants ====================
+
+export const DISCOUNT_RATES = {
+  KEYBOARD: 0.1,
+  MOUSE: 0.15,
+  MONITOR_ARM: 0.2,
+  SPEAKER: 0.25,
+  SUGGESTION: 0.05,
+  BULK: 0.25,
+  TUESDAY_ADDITIONAL: 0.1,
+  LIGHTNING_SALE: 0.2
+} as const;
+
+export const QUANTITY_DISCOUNT_THRESHOLD = 10;
+export const BULK_DISCOUNT_THRESHOLD = 30;
+
 // ==================== Business Logic Constants ====================
 
 export const TUESDAY_DAY_NUMBER = 2;
