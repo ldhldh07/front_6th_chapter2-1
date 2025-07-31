@@ -73,7 +73,6 @@ function App() {
     } else {
       setLastSelectedItem(selectedProductId);
     }
-    setSelectedProductId("");
   };
 
   const stockMessage = useMemo(() => {
