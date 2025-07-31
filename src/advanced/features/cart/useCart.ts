@@ -24,24 +24,25 @@ export const useCart = () => {
           ? { ...currentProduct, quantity: currentProduct.quantity - 1 }
           : currentProduct
       ));
-    } else {
-      const newQuantity = existingItem.quantity + 1;
-      
-      if (newQuantity > selectedProduct.quantity + existingItem.quantity) {
-        return { success: false, reason: 'out_of_stock' };
-      }
-
-      setCartItems(currentCartItems => currentCartItems.map(item =>
-        item.id === selectedProduct.id 
-          ? { ...item, quantity: newQuantity }
-          : item
-      ));
-      setProducts(currentProducts => currentProducts.map(currentProduct => 
-        currentProduct.id === selectedProduct.id 
-          ? { ...currentProduct, quantity: currentProduct.quantity - 1 }
-          : currentProduct
-      ));
+      return { success: true };
     }
+
+    const newQuantity = existingItem.quantity + 1;
+    
+    if (newQuantity > selectedProduct.quantity + existingItem.quantity) {
+      return { success: false, reason: 'out_of_stock' };
+    }
+
+    setCartItems(currentCartItems => currentCartItems.map(item =>
+      item.id === selectedProduct.id 
+        ? { ...item, quantity: newQuantity }
+        : item
+    ));
+    setProducts(currentProducts => currentProducts.map(currentProduct => 
+      currentProduct.id === selectedProduct.id 
+        ? { ...currentProduct, quantity: currentProduct.quantity - 1 }
+        : currentProduct
+    ));
 
     return { success: true };
   };

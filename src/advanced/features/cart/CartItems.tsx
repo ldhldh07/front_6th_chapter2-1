@@ -10,18 +10,16 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
   return (
     <div>
       {cartItems.map(item => {
-        const product = products.find(p => p.id === item.id);
+        const product = products.find(product => product.id === item.id);
         if (!product) return null;
 
-        const saleIcon = product.onSale && product.suggestSale ? "⚡💝" : 
-                         product.onSale ? "⚡" : 
-                         product.suggestSale ? "💝" : "";
+        const saleIcon = (product.onSale ? "⚡" : "") + (product.suggestSale ? "💝" : "");
         
         const priceDisplay = product.onSale || product.suggestSale ? 
           `₩${product.originalPrice.toLocaleString()}` : 
           `₩${product.price.toLocaleString()}`;
 
-        const discountedPriceDisplay = product.onSale || product.suggestSale ?
+        const priceTextColor = product.onSale || product.suggestSale ?
           product.onSale && product.suggestSale ? "text-purple-600" :
           product.onSale ? "text-red-500" : "text-blue-500" : "";
 
@@ -39,7 +37,7 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
                   <>
                     <span className="line-through text-gray-400">{priceDisplay}</span>
                     {' '}
-                    <span className={discountedPriceDisplay}>₩{product.price.toLocaleString()}</span>
+                    <span className={priceTextColor}>₩{product.price.toLocaleString()}</span>
                   </>
                 ) : (
                   priceDisplay
@@ -68,7 +66,7 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
                   <>
                     <span className="line-through text-gray-400">₩{product.originalPrice.toLocaleString()}</span>
                     {' '}
-                    <span className={discountedPriceDisplay}>₩{product.price.toLocaleString()}</span>
+                    <span className={priceTextColor}>₩{product.price.toLocaleString()}</span>
                   </>
                 ) : (
                   `₩${product.price.toLocaleString()}`
