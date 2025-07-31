@@ -1,20 +1,29 @@
-import { useEffect, useState, useMemo } from 'react';
-import { INITIAL_PRODUCT_DATA, TOTAL_STOCK_WARNING_THRESHOLD } from './shared/constants';
-import type { Product } from './shared/types';
-import { useCart, CartItems } from './features/cart';
-import { useProducts, ProductSelector } from './features/products';
-import { useDiscounts } from './features/discounts';
-import { usePoints } from './features/points';
-import { useEvents } from './features/events';
-import { calculateTotalQuantity } from './shared/utils';
-import { Header, OrderSummary, HelpModal } from './shared/components';
+import { useEffect, useState, useMemo } from "react";
+import {
+  INITIAL_PRODUCT_DATA,
+  TOTAL_STOCK_WARNING_THRESHOLD,
+} from "./shared/constants";
+import type { Product } from "./shared/types";
+import { useCart, CartItems } from "./features/cart";
+import { useProducts, ProductSelector } from "./features/products";
+import { useDiscounts } from "./features/discounts";
+import { usePoints } from "./features/points";
+import { useEvents } from "./features/events";
+import { calculateTotalQuantity } from "./shared/utils";
+import { Header, OrderSummary, HelpModal } from "./shared/components";
 
 function App() {
-  const { cartItems, products, setProducts, handleAddToCart, handleCartActions } = useCart();
+  const {
+    cartItems,
+    products,
+    setProducts,
+    handleAddToCart,
+    handleCartActions,
+  } = useCart();
   const { getOptionData, getLowStockProducts } = useProducts();
   const { calculateDiscounts } = useDiscounts();
   const { calculatePoints } = usePoints();
-  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState("");
   const [showManual, setShowManual] = useState(false);
   const [isManualClosing, setIsManualClosing] = useState(false);
   const [lastSelectedItem, setLastSelectedItem] = useState<string | null>(null);
@@ -34,37 +43,42 @@ function App() {
     products,
     setProducts,
     cartItems,
-    lastSelectedItem
+    lastSelectedItem,
   });
-  
+
   useEffect(() => {
     setProducts([...INITIAL_PRODUCT_DATA]);
   }, []);
 
-  const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
+  const totalStock = products.reduce(
+    (sum, product) => sum + product.quantity,
+    0
+  );
   const lowStockProducts = getLowStockProducts(products, 5);
 
   const handleAddClick = () => {
     if (!selectedProductId) return;
-    
+
     const result = handleAddToCart(selectedProductId, products);
     if (!result.success) {
-      if (result.reason === 'out_of_stock') {
-        alert('재고가 부족합니다.');
+      if (result.reason === "out_of_stock") {
+        alert("재고가 부족합니다.");
       } else {
-        alert('상품을 추가할 수 없습니다.');
+        alert("상품을 추가할 수 없습니다.");
       }
     } else {
       setLastSelectedItem(selectedProductId);
     }
-    setSelectedProductId('');
+    setSelectedProductId("");
   };
 
-  const stockMessage = lowStockProducts.map(product => 
-    product.quantity > 0 
-      ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
-      : `${product.name}: 품절`
-  ).join('\n');
+  const stockMessage = lowStockProducts
+    .map(product =>
+      product.quantity > 0
+        ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+        : `${product.name}: 품절`
+    )
+    .join("\n");
 
   return (
     <div className="app-container">
@@ -73,7 +87,6 @@ function App() {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-        
         {/* Left Column */}
         <div className="bg-white border border-gray-200 p-8 overflow-y-auto">
           <ProductSelector
@@ -86,7 +99,7 @@ function App() {
             stockWarningThreshold={TOTAL_STOCK_WARNING_THRESHOLD}
             getOptionData={getOptionData}
           />
-          
+
           <CartItems
             cartItems={cartItems}
             products={products}
@@ -103,7 +116,7 @@ function App() {
         />
       </div>
 
-            {/* Help Button */}
+      {/* Help Button */}
       <button
         onClick={() => {
           if (showManual && !isManualClosing) {
@@ -120,8 +133,18 @@ function App() {
         }}
         className="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
         </svg>
       </button>
 
@@ -139,9 +162,8 @@ function App() {
       />
 
       {/* Event Notifications */}
-
     </div>
   );
 }
 
-export default App; 
+export default App;

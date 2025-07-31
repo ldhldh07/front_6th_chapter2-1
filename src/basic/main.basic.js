@@ -7,16 +7,24 @@
 // Constants (중앙화)
 import {
   INITIAL_PRODUCT_DATA,
-  TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE,
-  POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD, TOTAL_STOCK_WARNING_THRESHOLD,
-} from './constants.js';
+  TUESDAY_DAY_NUMBER,
+  TUESDAY_ADDITIONAL_DISCOUNT_RATE,
+  POINTS_CALCULATION_BASE,
+  LOW_STOCK_THRESHOLD,
+  TOTAL_STOCK_WARNING_THRESHOLD,
+} from "./constants.js";
 
-import { renderApp } from './app.js';
-import { findProductById, updateSelectOptions } from './features/products.js';
+import { renderApp } from "./app.js";
+import { findProductById, updateSelectOptions } from "./features/products.js";
 
-import { calculateCompleteCartTotals, updateCartTotalsDisplay, handleAddToCart, handleCartActions } from './features/cart.js';
+import {
+  calculateCompleteCartTotals,
+  updateCartTotalsDisplay,
+  handleAddToCart,
+  handleCartActions,
+} from "./features/cart.js";
 
-import { setupEventTimers } from './features/events.js';
+import { setupEventTimers } from "./features/events.js";
 
 // ==================== App State ====================
 
@@ -24,11 +32,11 @@ const appState = {
   totalAmount: 0,
   itemCount: 0,
   lastSelectedItem: null,
-  bonusPoints: 0
+  bonusPoints: 0,
 };
 
 const dataState = {
-  productList: null
+  productList: null,
 };
 
 const domRefs = {
@@ -36,7 +44,7 @@ const domRefs = {
   productSelect: null,
   addButton: null,
   cartDisplay: null,
-  cartTotalElement: null
+  cartTotalElement: null,
 };
 
 // ==================== Shared Utilities ====================
@@ -60,28 +68,32 @@ const main = () => {
   initializeProductData();
   const root = document.getElementById("app");
   createAppStructure(root);
-  
+
   // 이벤트 타이머 설정
   setupEventTimers({
     productList: dataState.productList,
     appState,
     domRefs,
-    calculateCartTotals
+    calculateCartTotals,
   });
 };
 
 /**
  * 앱 구조 생성 (완전 HTML 기반)
  */
-const createAppStructure = (root) => {
+const createAppStructure = root => {
   // HTML 기반 전체 앱 렌더링
   renderApp(root);
-  
+
   // DOM 참조 설정
   setupDOMRefs();
-  
+
   // 초기 데이터 설정
-  updateSelectOptions(dataState.productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
+  updateSelectOptions(
+    dataState.productList,
+    domRefs.productSelect,
+    TOTAL_STOCK_WARNING_THRESHOLD
+  );
   calculateCartTotals();
 };
 
@@ -94,7 +106,7 @@ const setupDOMRefs = () => {
   domRefs.stockInformation = document.getElementById("stock-status");
   domRefs.cartDisplay = document.getElementById("cart-items");
   domRefs.cartTotalElement = document.getElementById("cart-total");
-  
+
   // 매뉴얼 시스템 이벤트 연결
   setupManualEvents();
 };
@@ -104,51 +116,49 @@ const setupDOMRefs = () => {
  */
 const setupManualEvents = () => {
   const helpButton = document.querySelector('[data-action="toggle-manual"]');
-  const manualOverlay = document.getElementById('manual-overlay');
-  const manualPanel = document.getElementById('manual-panel');
+  const manualOverlay = document.getElementById("manual-overlay");
+  const manualPanel = document.getElementById("manual-panel");
   const closeButton = document.querySelector('[data-action="close-manual"]');
-  
+
   if (!helpButton || !manualOverlay || !manualPanel) return;
-  
+
   // 도움말 버튼 클릭
-  helpButton.addEventListener('click', () => {
-    manualOverlay.classList.remove('hidden');
-    manualPanel.classList.remove('translate-x-full');
+  helpButton.addEventListener("click", () => {
+    manualOverlay.classList.remove("hidden");
+    manualPanel.classList.remove("translate-x-full");
   });
-  
-  // 오버레이 클릭으로 닫기 
-  manualOverlay.addEventListener('click', (event) => {
+
+  // 오버레이 클릭으로 닫기
+  manualOverlay.addEventListener("click", event => {
     if (event.target === manualOverlay) {
-      manualPanel.classList.add('translate-x-full');
-      manualOverlay.classList.add('hidden');
+      manualPanel.classList.add("translate-x-full");
+      manualOverlay.classList.add("hidden");
     }
   });
-  
-  // 닫기 버튼 클릭 
+
+  // 닫기 버튼 클릭
   if (!closeButton) return;
-  
-  closeButton.addEventListener('click', () => {
-    manualPanel.classList.add('translate-x-full');
-    manualOverlay.classList.add('hidden');
+
+  closeButton.addEventListener("click", () => {
+    manualPanel.classList.add("translate-x-full");
+    manualOverlay.classList.add("hidden");
   });
 };
-
-
 
 /**
  * 장바구니 총액 계산 및 UI 업데이트
  */
 const calculateCartTotals = () => {
   const cartItems = domRefs.cartDisplay.children;
-  
+
   const calculationResult = calculateCompleteCartTotals(
-    cartItems, 
-    dataState.productList, 
+    cartItems,
+    dataState.productList,
     {
-      TUESDAY_DAY_NUMBER, 
-      TUESDAY_ADDITIONAL_DISCOUNT_RATE, 
-      POINTS_CALCULATION_BASE, 
-      LOW_STOCK_THRESHOLD
+      TUESDAY_DAY_NUMBER,
+      TUESDAY_ADDITIONAL_DISCOUNT_RATE,
+      POINTS_CALCULATION_BASE,
+      LOW_STOCK_THRESHOLD,
     }
   );
 
@@ -165,19 +175,19 @@ main();
 // ==================== Event Listeners ====================
 domRefs.addButton.addEventListener("click", () => {
   const selectedItemId = domRefs.productSelect.value;
-  
+
   handleAddToCart(selectedItemId, {
     productList: dataState.productList,
     appState,
     domRefs,
-    functions: { findProductById, calculateCartTotals }
+    functions: { findProductById, calculateCartTotals },
   });
 });
 
-domRefs.cartDisplay.addEventListener("click", (event) => {
+domRefs.cartDisplay.addEventListener("click", event => {
   handleCartActions(event, {
     productList: dataState.productList,
     domRefs,
-    functions: { findProductById, calculateCartTotals, updateSelectOptions }
+    functions: { findProductById, calculateCartTotals, updateSelectOptions },
   });
-}); 
+});

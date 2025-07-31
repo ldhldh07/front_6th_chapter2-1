@@ -25,7 +25,7 @@ export interface AppState {
 
 // ==================== Discount Types ====================
 
-export type DiscountType = 'none' | 'product' | 'bulk' | 'tuesday' | 'combined';
+export type DiscountType = "none" | "product" | "bulk" | "tuesday" | "combined";
 
 export interface DiscountInfo {
   name: string;
@@ -72,5 +72,3 @@ export interface PointsResult {
   bonusDetails: string[];
   isTuesday: boolean;
 }
-
- 

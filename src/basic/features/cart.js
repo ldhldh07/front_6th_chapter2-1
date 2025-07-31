@@ -1,8 +1,24 @@
-import { applyBulkDiscount, calculateTuesdayDiscount, getProductDiscountRate } from './discounts.js';
-import { QUANTITY_DISCOUNT_THRESHOLD, PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, TOTAL_STOCK_WARNING_THRESHOLD } from '../constants.js';
-import { updateTuesdayUI } from './discounts.js';
-import { cartSummary, discountInfo, cartItem } from '../app.js';
-import { renderBonusPoints, calculateBasePoints, calculateTuesdayBonus, calculateComboBonuses, calculateBulkBonus } from './points.js';
+import {
+  applyBulkDiscount,
+  calculateTuesdayDiscount,
+  getProductDiscountRate,
+} from "./discounts.js";
+import {
+  QUANTITY_DISCOUNT_THRESHOLD,
+  PRODUCT_ONE,
+  PRODUCT_TWO,
+  PRODUCT_THREE,
+  TOTAL_STOCK_WARNING_THRESHOLD,
+} from "../constants.js";
+import { updateTuesdayUI } from "./discounts.js";
+import { cartSummary, discountInfo, cartItem } from "../app.js";
+import {
+  renderBonusPoints,
+  calculateBasePoints,
+  calculateTuesdayBonus,
+  calculateComboBonuses,
+  calculateBulkBonus,
+} from "./points.js";
 
 /**
  * 장바구니 아이템의 스타일을 업데이트합니다
@@ -13,7 +29,8 @@ export const updateItemStyles = (cartItem, quantity) => {
   const priceElements = cartItem.querySelectorAll(".text-lg, .text-xs");
   priceElements.forEach(element => {
     if (element.classList.contains("text-lg")) {
-        element.style.fontWeight = quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
+      element.style.fontWeight =
+        quantity >= QUANTITY_DISCOUNT_THRESHOLD ? "bold" : "normal";
     }
   });
 };
@@ -31,16 +48,17 @@ export const calculateItemData = (cartItem, productList) => {
   const quantityElement = cartItem.querySelector(".quantity-number");
   const quantity = parseInt(quantityElement.textContent);
   const itemTotal = product.price * quantity;
-  const discount = quantity >= QUANTITY_DISCOUNT_THRESHOLD 
-    ? getProductDiscountRate(product.id) 
-    : 0;
-  
+  const discount =
+    quantity >= QUANTITY_DISCOUNT_THRESHOLD
+      ? getProductDiscountRate(product.id)
+      : 0;
+
   return {
     product,
     quantity,
     itemTotal,
     discount,
-    cartItem
+    cartItem,
   };
 };
 
@@ -51,17 +69,20 @@ export const calculateItemData = (cartItem, productList) => {
  * @returns {Object} 상품 유형 확인 결과
  */
 export const getCartProductTypes = (cartItems, productList) => {
-  return Array.from(cartItems).reduce((types, node) => {
-    const product = productList.find(product => product.id === node.id);
-    if (!product) return types;
-    
-    return {
-      ...types,
-      hasKeyboard: types.hasKeyboard || product.id === PRODUCT_ONE,
-      hasMouse: types.hasMouse || product.id === PRODUCT_TWO,
-      hasMonitorArm: types.hasMonitorArm || product.id === PRODUCT_THREE
-    };
-  }, { hasKeyboard: false, hasMouse: false, hasMonitorArm: false });
+  return Array.from(cartItems).reduce(
+    (types, node) => {
+      const product = productList.find(product => product.id === node.id);
+      if (!product) return types;
+
+      return {
+        ...types,
+        hasKeyboard: types.hasKeyboard || product.id === PRODUCT_ONE,
+        hasMouse: types.hasMouse || product.id === PRODUCT_TWO,
+        hasMonitorArm: types.hasMonitorArm || product.id === PRODUCT_THREE,
+      };
+    },
+    { hasKeyboard: false, hasMouse: false, hasMonitorArm: false }
+  );
 };
 
 /**
@@ -71,45 +92,73 @@ export const getCartProductTypes = (cartItems, productList) => {
  * @param {Object} constants - 상수 객체
  * @returns {Object} 완전한 장바구니 계산 결과
  */
-export const calculateCompleteCartTotals = (cartItems, productList, constants) => {
-  const { TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE, POINTS_CALCULATION_BASE, LOW_STOCK_THRESHOLD } = constants;
-  
-  const cartItemsData = Array.from(cartItems).map(cartItem => calculateItemData(cartItem, productList));
-  
-  const { totalAmount: initialTotalAmount, itemCount, subtotal, itemDiscounts } = cartItemsData.reduce(
+export const calculateCompleteCartTotals = (
+  cartItems,
+  productList,
+  constants
+) => {
+  const {
+    TUESDAY_DAY_NUMBER,
+    TUESDAY_ADDITIONAL_DISCOUNT_RATE,
+    POINTS_CALCULATION_BASE,
+    LOW_STOCK_THRESHOLD,
+  } = constants;
+
+  const cartItemsData = Array.from(cartItems).map(cartItem =>
+    calculateItemData(cartItem, productList)
+  );
+
+  const {
+    totalAmount: initialTotalAmount,
+    itemCount,
+    subtotal,
+    itemDiscounts,
+  } = cartItemsData.reduce(
     (acc, itemData) => {
       const { quantity, itemTotal, discount, product } = itemData;
       const discountedTotal = itemTotal * (1 - discount);
-      
+
       return {
         totalAmount: acc.totalAmount + discountedTotal,
         itemCount: acc.itemCount + quantity,
         subtotal: acc.subtotal + itemTotal,
-        itemDiscounts: discount > 0 
-          ? [...acc.itemDiscounts, { name: product.name, discount: discount * 100 }]
-          : acc.itemDiscounts
+        itemDiscounts:
+          discount > 0
+            ? [
+                ...acc.itemDiscounts,
+                { name: product.name, discount: discount * 100 },
+              ]
+            : acc.itemDiscounts,
       };
     },
     { totalAmount: 0, itemCount: 0, subtotal: 0, itemDiscounts: [] }
   );
-  
+
   const originalTotal = subtotal;
 
   // 대량구매 할인 적용
   const bulkDiscount = applyBulkDiscount(itemCount, subtotal);
-  const afterBulkAmount = bulkDiscount ? bulkDiscount.totalAmount : initialTotalAmount;
+  const afterBulkAmount = bulkDiscount
+    ? bulkDiscount.totalAmount
+    : initialTotalAmount;
 
   // 화요일 할인 적용
-  const tuesdayDiscount = calculateTuesdayDiscount(afterBulkAmount, originalTotal, TUESDAY_DAY_NUMBER, TUESDAY_ADDITIONAL_DISCOUNT_RATE);
+  const tuesdayDiscount = calculateTuesdayDiscount(
+    afterBulkAmount,
+    originalTotal,
+    TUESDAY_DAY_NUMBER,
+    TUESDAY_ADDITIONAL_DISCOUNT_RATE
+  );
   const finalTotalAmount = tuesdayDiscount.totalAmount;
   const discRate = tuesdayDiscount.discRate;
 
   // 재고 부족 상품 목록
   const lowStockItems = productList
     .filter(item => item.quantity < LOW_STOCK_THRESHOLD)
-    .map(item => item.quantity > 0 
-      ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
-      : `${item.name}: 품절`
+    .map(item =>
+      item.quantity > 0
+        ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
+        : `${item.name}: 품절`
     );
 
   // 적립 포인트 계산
@@ -126,7 +175,7 @@ export const calculateCompleteCartTotals = (cartItems, productList, constants) =
     bulkDiscount,
     lowStockItems,
     earnedPoints,
-    cartItemsData
+    cartItemsData,
   };
 };
 
@@ -148,26 +197,32 @@ export const updateCartItemStyles = (cartItems, productList) => {
 /**
  * 장바구니 내 상품들의 가격 정보를 업데이트합니다
  * @param {HTMLCollection} cartItems - 장바구니 DOM 요소들
- * @param {Array} productList - 상품 목록  
+ * @param {Array} productList - 상품 목록
  * @param {Function} findProductById - 상품 조회 함수
  * @param {Function} getProductDisplayInfo - 상품 표시 정보 생성 함수
  * @param {Function} calculateCartTotals - 장바구니 총액 계산 함수
  */
-export const updatePricesInCart = (cartItems, productList, findProductById, getProductDisplayInfo, calculateCartTotals) => {
+export const updatePricesInCart = (
+  cartItems,
+  productList,
+  findProductById,
+  getProductDisplayInfo,
+  calculateCartTotals
+) => {
   Array.from(cartItems).forEach(cartItem => {
     const productId = cartItem.id;
     const product = findProductById(productId, productList);
-    
+
     if (!product) return;
-    
+
     const priceElement = cartItem.querySelector(".text-lg");
     const nameElement = cartItem.querySelector("h3");
     const displayInfo = getProductDisplayInfo(product);
-    
+
     priceElement.innerHTML = displayInfo.priceHtml;
     nameElement.textContent = displayInfo.nameText;
   });
-  
+
   calculateCartTotals();
 };
 
@@ -178,7 +233,12 @@ export const updatePricesInCart = (cartItems, productList, findProductById, getP
  * @param {Object} appState - 앱 상태 (업데이트용)
  * @param {Array} productList - 상품 목록 (포인트 계산용)
  */
-export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, productList) => {
+export const updateCartTotalsDisplay = (
+  calculationResult,
+  domRefs,
+  appState,
+  productList
+) => {
   const {
     totalAmount,
     itemCount,
@@ -189,7 +249,7 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, pr
     itemDiscounts,
     lowStockItems,
     earnedPoints,
-    cartItemsData
+    cartItemsData,
   } = calculationResult;
 
   // 직접 import된 함수들 사용
@@ -211,30 +271,35 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, pr
   const summaryDetails = document.getElementById("summary-details");
   const loyaltyPointsElement = document.getElementById("loyalty-points");
   const discountInfoElement = document.getElementById("discount-info");
-  
+
   summaryDetails.innerHTML = "";
   discountInfoElement.innerHTML = "";
 
   // === 5. Summary Details 렌더링 ===
   if (subtotal > 0) {
-    const summaryItems = cartItemsData.map(itemData => {
-      const { product, quantity, itemTotal } = itemData;
-      return `
+    const summaryItems = cartItemsData
+      .map(itemData => {
+        const { product, quantity, itemTotal } = itemData;
+        return `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${product.name} x ${quantity}</span>
           <span>₩${itemTotal.toLocaleString()}</span>
         </div>
       `;
-    }).join('');
+      })
+      .join("");
 
     summaryDetails.innerHTML = cartSummary(summaryItems, subtotal);
 
     // 개별 상품 할인 정보 표시
     if (itemDiscounts.length > 0) {
-      const discountDetails = itemDiscounts.map(item => 
-        `<div class="text-2xs text-green-600">• ${item.name}: ${item.discount}% 할인</div>`
-      ).join('');
-      
+      const discountDetails = itemDiscounts
+        .map(
+          item =>
+            `<div class="text-2xs text-green-600">• ${item.name}: ${item.discount}% 할인</div>`
+        )
+        .join("");
+
       summaryDetails.innerHTML += `
         <div class="bg-green-50 rounded-md p-2 mt-2">
           <div class="text-2xs font-medium text-green-800 mb-1">개별 상품 할인</div>
@@ -260,9 +325,8 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, pr
 
   // 적립 포인트 표시
   if (loyaltyPointsElement) {
-    loyaltyPointsElement.textContent = earnedPoints > 0 
-      ? `적립 포인트: ${earnedPoints}p` 
-      : "적립 포인트: 0p";
+    loyaltyPointsElement.textContent =
+      earnedPoints > 0 ? `적립 포인트: ${earnedPoints}p` : "적립 포인트: 0p";
     loyaltyPointsElement.style.display = "block";
   }
 
@@ -274,7 +338,9 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, pr
 
   // === 7. 아이템 개수 및 상태 표시 ===
   if (itemCountElement) {
-    const previousItemCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    const previousItemCount = parseInt(
+      itemCountElement.textContent.match(/\d+/) || 0
+    );
     itemCountElement.textContent = "🛍️ " + itemCount + " items in cart";
     if (previousItemCount !== itemCount) {
       itemCountElement.setAttribute("data-changed", "true");
@@ -282,9 +348,9 @@ export const updateCartTotalsDisplay = (calculationResult, domRefs, appState, pr
   }
 
   // === 8. 재고 정보 표시 ===
-  const stockMessage = lowStockItems.join('\n');
+  const stockMessage = lowStockItems.join("\n");
   domRefs.stockInformation.textContent = stockMessage;
-  
+
   // === 9. 보너스 포인트 렌더링 ===
   renderBonusPoints(
     domRefs.cartDisplay.children,
@@ -319,46 +385,46 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
   const selectedProduct = findProductById(selectedItemId, productList);
 
   if (!selectedItemId || !selectedProduct) {
-    return { success: false, reason: 'invalid_product' };
+    return { success: false, reason: "invalid_product" };
   }
-  
+
   if (selectedProduct.quantity <= 0) {
-    return { success: false, reason: 'out_of_stock' };
+    return { success: false, reason: "out_of_stock" };
   }
 
   const existingItem = document.getElementById(selectedProduct.id);
-  
+
   if (existingItem) {
     // 기존 아이템 수량 증가
     const quantityElement = existingItem.querySelector(".quantity-number");
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + 1;
-    
+
     if (newQuantity <= selectedProduct.quantity + currentQuantity) {
       quantityElement.textContent = newQuantity;
       selectedProduct.quantity--;
     } else {
       alert("재고가 부족합니다.");
-      return { success: false, reason: 'insufficient_stock' };
+      return { success: false, reason: "insufficient_stock" };
     }
-    
+
     calculateCartTotals();
     appState.lastSelectedItem = selectedItemId;
     return { success: true, product: selectedProduct };
   }
-  
+
   // 새 아이템 생성 (HTML 기반)
   const newItemHTML = `
     <div id="${selectedProduct.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
       ${cartItem(selectedProduct)}
     </div>
   `;
-  domRefs.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
+  domRefs.cartDisplay.insertAdjacentHTML("beforeend", newItemHTML);
   selectedProduct.quantity--;
 
   calculateCartTotals();
   appState.lastSelectedItem = selectedItemId;
-  
+
   return { success: true, product: selectedProduct };
 };
 
@@ -372,31 +438,31 @@ export const handleCartActions = (event, dependencies) => {
   const {
     productList,
     domRefs,
-    functions: { findProductById, calculateCartTotals, updateSelectOptions }
+    functions: { findProductById, calculateCartTotals, updateSelectOptions },
   } = dependencies;
 
   const target = event.target;
   const isQuantityButton = target.classList.contains("quantity-change");
   const isRemoveButton = target.classList.contains("remove-item");
-  
+
   if (!isQuantityButton && !isRemoveButton) {
-    return { success: false, reason: 'invalid_target' };
+    return { success: false, reason: "invalid_target" };
   }
-  
+
   const productId = target.dataset.productId;
   const cartItemElement = document.getElementById(productId);
   const product = findProductById(productId, productList);
-  
+
   if (!product) {
-    return { success: false, reason: 'product_not_found' };
+    return { success: false, reason: "product_not_found" };
   }
-  
+
   if (isQuantityButton) {
     const quantityChange = parseInt(target.dataset.change);
     const quantityElement = cartItemElement.querySelector(".quantity-number");
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + quantityChange;
-    
+
     if (newQuantity > 0 && newQuantity <= product.quantity + currentQuantity) {
       quantityElement.textContent = newQuantity;
       product.quantity -= quantityChange;
@@ -405,14 +471,18 @@ export const handleCartActions = (event, dependencies) => {
       cartItemElement.remove();
     } else {
       alert("재고가 부족합니다.");
-      return { success: false, reason: 'insufficient_stock' };
+      return { success: false, reason: "insufficient_stock" };
     }
-    
+
     calculateCartTotals();
-    updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
-    return { success: true, action: 'quantity_change', product };
+    updateSelectOptions(
+      productList,
+      domRefs.productSelect,
+      TOTAL_STOCK_WARNING_THRESHOLD
+    );
+    return { success: true, action: "quantity_change", product };
   }
-  
+
   if (isRemoveButton) {
     const quantityElement = cartItemElement.querySelector(".quantity-number");
     const removedQuantity = parseInt(quantityElement.textContent);
@@ -421,8 +491,15 @@ export const handleCartActions = (event, dependencies) => {
   }
 
   calculateCartTotals();
-  updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
-  
-  return { success: true, action: isQuantityButton ? 'quantity_change' : 'remove', product };
-};
+  updateSelectOptions(
+    productList,
+    domRefs.productSelect,
+    TOTAL_STOCK_WARNING_THRESHOLD
+  );
 
+  return {
+    success: true,
+    action: isQuantityButton ? "quantity_change" : "remove",
+    product,
+  };
+};

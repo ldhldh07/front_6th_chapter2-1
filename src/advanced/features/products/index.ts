@@ -1,2 +1,2 @@
-export { useProducts } from './useProducts';
-export { ProductSelector } from './ProductSelector'; 
+export { useProducts } from "./useProducts";
+export { ProductSelector } from "./ProductSelector";

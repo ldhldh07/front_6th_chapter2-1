@@ -1,1 +1,1 @@
-export { usePoints } from './usePoints'; 
+export { usePoints } from "./usePoints";

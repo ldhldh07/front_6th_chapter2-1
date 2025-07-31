@@ -6,11 +6,11 @@
 // ==================== Product Constants ====================
 
 export const PRODUCT_IDS = {
-  KEYBOARD: 'p1',
-  MOUSE: 'p2', 
-  MONITOR_ARM: 'p3',
-  LAPTOP_POUCH: 'p4',
-  SPEAKER: 'p5'
+  KEYBOARD: "p1",
+  MOUSE: "p2",
+  MONITOR_ARM: "p3",
+  LAPTOP_POUCH: "p4",
+  SPEAKER: "p5",
 };
 
 // Legacy aliases (기존 코드 호환성)
@@ -21,11 +21,51 @@ export const PRODUCT_FOUR = PRODUCT_IDS.LAPTOP_POUCH;
 export const PRODUCT_FIVE = PRODUCT_IDS.SPEAKER;
 
 export const INITIAL_PRODUCT_DATA = [
-  { id: PRODUCT_IDS.KEYBOARD, name: '버그 없애는 키보드', price: 10000, originalPrice: 10000, quantity: 50, onSale: false, suggestSale: false },
-  { id: PRODUCT_IDS.MOUSE, name: '생산성 폭발 마우스', price: 20000, originalPrice: 20000, quantity: 30, onSale: false, suggestSale: false },
-  { id: PRODUCT_IDS.MONITOR_ARM, name: '거북목 탈출 모니터암', price: 30000, originalPrice: 30000, quantity: 20, onSale: false, suggestSale: false },
-  { id: PRODUCT_IDS.LAPTOP_POUCH, name: '에러 방지 노트북 파우치', price: 15000, originalPrice: 15000, quantity: 0, onSale: false, suggestSale: false },
-  { id: PRODUCT_IDS.SPEAKER, name: '코딩할 때 듣는 Lo-Fi 스피커', price: 25000, originalPrice: 25000, quantity: 10, onSale: false, suggestSale: false }
+  {
+    id: PRODUCT_IDS.KEYBOARD,
+    name: "버그 없애는 키보드",
+    price: 10000,
+    originalPrice: 10000,
+    quantity: 50,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_IDS.MOUSE,
+    name: "생산성 폭발 마우스",
+    price: 20000,
+    originalPrice: 20000,
+    quantity: 30,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_IDS.MONITOR_ARM,
+    name: "거북목 탈출 모니터암",
+    price: 30000,
+    originalPrice: 30000,
+    quantity: 20,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_IDS.LAPTOP_POUCH,
+    name: "에러 방지 노트북 파우치",
+    price: 15000,
+    originalPrice: 15000,
+    quantity: 0,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_IDS.SPEAKER,
+    name: "코딩할 때 듣는 Lo-Fi 스피커",
+    price: 25000,
+    originalPrice: 25000,
+    quantity: 10,
+    onSale: false,
+    suggestSale: false,
+  },
 ];
 
 // ==================== Discount Constants ====================
@@ -38,7 +78,7 @@ export const DISCOUNT_RATES = {
   SUGGESTION: 0.05,
   BULK: 0.25,
   TUESDAY_ADDITIONAL: 0.1,
-  LIGHTNING_SALE: 0.2
+  LIGHTNING_SALE: 0.2,
 };
 
 // Legacy aliases
@@ -48,7 +88,8 @@ export const MONITOR_ARM_DISCOUNT_RATE = DISCOUNT_RATES.MONITOR_ARM;
 export const SPEAKER_DISCOUNT_RATE = DISCOUNT_RATES.SPEAKER;
 export const SUGGESTION_DISCOUNT_RATE = DISCOUNT_RATES.SUGGESTION;
 export const BULK_DISCOUNT_RATE = DISCOUNT_RATES.BULK;
-export const TUESDAY_ADDITIONAL_DISCOUNT_RATE = DISCOUNT_RATES.TUESDAY_ADDITIONAL;
+export const TUESDAY_ADDITIONAL_DISCOUNT_RATE =
+  DISCOUNT_RATES.TUESDAY_ADDITIONAL;
 export const LIGHTNING_SALE_DISCOUNT_RATE = DISCOUNT_RATES.LIGHTNING_SALE;
 
 export const THRESHOLDS = {
@@ -58,7 +99,7 @@ export const THRESHOLDS = {
   TOTAL_STOCK_WARNING: 50,
   SMALL_BULK: 10,
   MEDIUM_BULK: 20,
-  LARGE_BULK: 30
+  LARGE_BULK: 30,
 };
 
 // Legacy aliases
@@ -78,7 +119,7 @@ export const POINTS = {
   FULL_SET_BONUS: 100,
   SMALL_BULK_BONUS: 20,
   MEDIUM_BULK_BONUS: 50,
-  LARGE_BULK_BONUS: 100
+  LARGE_BULK_BONUS: 100,
 };
 
 // Legacy aliases
@@ -96,7 +137,7 @@ export const TIME_CONFIG = {
   LIGHTNING_SALE_MAX_DELAY: 10000,
   LIGHTNING_SALE_DURATION: 30000,
   SUGGESTION_SALE_MAX_DELAY: 20000,
-  SUGGESTION_INTERVAL_MS: 60000
+  SUGGESTION_INTERVAL_MS: 60000,
 };
 
 // Legacy aliases
@@ -109,9 +150,9 @@ export const SUGGESTION_INTERVAL_MS = TIME_CONFIG.SUGGESTION_INTERVAL_MS;
 // ==================== UI Text Constants ====================
 
 export const SALE_TEXTS = {
-  SUPER_SALE: '25% SUPER SALE!',
-  LIGHTNING_SALE: '20% SALE!',
-  SUGGESTION_SALE: '5% 추천할인!'
+  SUPER_SALE: "25% SUPER SALE!",
+  LIGHTNING_SALE: "20% SALE!",
+  SUGGESTION_SALE: "5% 추천할인!",
 };
 
 // Legacy aliases
@@ -123,12 +164,12 @@ export const SUGGESTION_SALE_TEXT = SALE_TEXTS.SUGGESTION_SALE;
 
 export const PRODUCT_CONFIG = {
   IDS: PRODUCT_IDS,
-  INITIAL_DATA: INITIAL_PRODUCT_DATA
+  INITIAL_DATA: INITIAL_PRODUCT_DATA,
 };
 
 export const DISCOUNT_CONFIG = {
   RATES: DISCOUNT_RATES,
-  THRESHOLDS: THRESHOLDS
+  THRESHOLDS: THRESHOLDS,
 };
 
 export const POINTS_CONFIG = {
@@ -136,8 +177,8 @@ export const POINTS_CONFIG = {
   THRESHOLDS: {
     SMALL_BULK: THRESHOLDS.SMALL_BULK,
     MEDIUM_BULK: THRESHOLDS.MEDIUM_BULK,
-    LARGE_BULK: THRESHOLDS.LARGE_BULK
-  }
+    LARGE_BULK: THRESHOLDS.LARGE_BULK,
+  },
 };
 
 export const APP_CONFIG = {
@@ -145,5 +186,5 @@ export const APP_CONFIG = {
   DISCOUNTS: DISCOUNT_CONFIG,
   POINTS: POINTS_CONFIG,
   TIME: TIME_CONFIG,
-  UI_TEXTS: SALE_TEXTS
-}; 
+  UI_TEXTS: SALE_TEXTS,
+};

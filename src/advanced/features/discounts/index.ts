@@ -1,1 +1,1 @@
-export { useDiscounts } from './useDiscounts'; 
+export { useDiscounts } from "./useDiscounts";

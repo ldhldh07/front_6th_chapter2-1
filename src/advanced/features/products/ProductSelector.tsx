@@ -1,4 +1,4 @@
-import type { Product } from '../../shared/types';
+import type { Product } from "../../shared/types";
 
 interface ProductSelectorProps {
   products: Product[];
@@ -19,16 +19,18 @@ export const ProductSelector = ({
   stockMessage,
   totalStock,
   stockWarningThreshold,
-  getOptionData
+  getOptionData,
 }: ProductSelectorProps) => {
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
         id="product-select"
         value={selectedProductId}
-        onChange={(e) => onProductSelect(e.target.value)}
+        onChange={e => onProductSelect(e.target.value)}
         className={`w-full p-3 border rounded-lg text-base mb-3 ${
-          totalStock < stockWarningThreshold ? 'border-orange-500' : 'border-gray-300'
+          totalStock < stockWarningThreshold
+            ? "border-orange-500"
+            : "border-gray-300"
         }`}
       >
         <option value="">상품을 선택하세요</option>
@@ -41,12 +43,12 @@ export const ProductSelector = ({
               disabled={product.quantity <= 0}
               className={
                 product.onSale && product.suggestSale
-                  ? 'text-purple-600 font-bold'
+                  ? "text-purple-600 font-bold"
                   : product.onSale
-                  ? 'text-red-500 font-bold'
-                  : product.suggestSale
-                  ? 'text-blue-500 font-bold'
-                  : ''
+                    ? "text-red-500 font-bold"
+                    : product.suggestSale
+                      ? "text-blue-500 font-bold"
+                      : ""
               }
             >
               {optionData.text}
@@ -67,4 +69,4 @@ export const ProductSelector = ({
       </div>
     </div>
   );
-}; 
+};

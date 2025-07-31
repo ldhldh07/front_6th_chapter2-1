@@ -170,14 +170,20 @@ export const discountInfo = (discRate, savedAmount) => `
  * @param {Object} selectedProduct - 선택된 상품 정보
  * @returns {string} HTML
  */
-export const cartItem = (selectedProduct) => {
-  const saleIcon = selectedProduct.onSale && selectedProduct.suggestSale ? "⚡💝" : 
-                   selectedProduct.onSale ? "⚡" : 
-                   selectedProduct.suggestSale ? "💝" : "";
-  
-  const priceDisplay = selectedProduct.onSale || selectedProduct.suggestSale ? 
-    `<span class="line-through text-gray-400">₩${selectedProduct.originalPrice.toLocaleString()}</span> <span class="${selectedProduct.onSale && selectedProduct.suggestSale ? "text-purple-600" : selectedProduct.onSale ? "text-red-500" : "text-blue-500"}">₩${selectedProduct.price.toLocaleString()}</span>` : 
-    `₩${selectedProduct.price.toLocaleString()}`;
+export const cartItem = selectedProduct => {
+  const saleIcon =
+    selectedProduct.onSale && selectedProduct.suggestSale
+      ? "⚡💝"
+      : selectedProduct.onSale
+        ? "⚡"
+        : selectedProduct.suggestSale
+          ? "💝"
+          : "";
+
+  const priceDisplay =
+    selectedProduct.onSale || selectedProduct.suggestSale
+      ? `<span class="line-through text-gray-400">₩${selectedProduct.originalPrice.toLocaleString()}</span> <span class="${selectedProduct.onSale && selectedProduct.suggestSale ? "text-purple-600" : selectedProduct.onSale ? "text-red-500" : "text-blue-500"}">₩${selectedProduct.price.toLocaleString()}</span>`
+      : `₩${selectedProduct.price.toLocaleString()}`;
 
   return `
 <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
@@ -199,7 +205,6 @@ export const cartItem = (selectedProduct) => {
 </div>
 `;
 };
-
 
 /**
  * 상품 셀렉터
@@ -230,7 +235,6 @@ export const productSelector = `
     </div>
   </div>
 `;
-
 
 /**
  * 전체 앱 구조를 HTML로 생성 (innerHTML 기반)
@@ -266,7 +270,7 @@ export const createAppHTML = () => {
  * innerHTML 기반 전체 앱 렌더링
  * @param {HTMLElement} rootElement - 루트 DOM 요소
  */
-export const renderApp = (rootElement) => {
+export const renderApp = rootElement => {
   rootElement.innerHTML = createAppHTML();
 };
 
@@ -279,28 +283,28 @@ export const renderApp = (rootElement) => {
  */
 export const setupEventDelegation = (rootElement, handlers = {}) => {
   // 클릭 이벤트 위임
-  rootElement.addEventListener('click', (event) => {
+  rootElement.addEventListener("click", event => {
     const action = event.target.dataset.action;
     const productId = event.target.dataset.productId;
     const change = event.target.dataset.change;
-    
+
     if (action && handlers[action]) {
       event.preventDefault();
-      
+
       // 매개변수가 필요한 핸들러들
       if (productId || change) {
         handlers[action](productId, change);
         return;
       }
-      
+
       handlers[action](event);
     }
   });
-  
+
   // 변경 이벤트 위임 (select 등)
-  rootElement.addEventListener('change', (event) => {
+  rootElement.addEventListener("change", event => {
     const action = event.target.dataset.action;
-    
+
     if (action && handlers[action]) {
       handlers[action](event);
     }
@@ -311,18 +315,18 @@ export const setupEventDelegation = (rootElement, handlers = {}) => {
  * 매뉴얼 표시/숨김 처리
  * @param {boolean} show - 표시 여부
  */
-export const toggleManual = (show) => {
-  const overlay = document.getElementById('manual-overlay');
-  const panel = document.getElementById('manual-panel');
-  
+export const toggleManual = show => {
+  const overlay = document.getElementById("manual-overlay");
+  const panel = document.getElementById("manual-panel");
+
   if (!overlay || !panel) return;
-  
+
   if (show) {
-    overlay.classList.remove('hidden');
-    setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+    overlay.classList.remove("hidden");
+    setTimeout(() => panel.classList.remove("translate-x-full"), 10);
     return;
   }
-  
-  panel.classList.add('translate-x-full');
-  setTimeout(() => overlay.classList.add('hidden'), 300);
-}; 
+
+  panel.classList.add("translate-x-full");
+  setTimeout(() => overlay.classList.add("hidden"), 300);
+};

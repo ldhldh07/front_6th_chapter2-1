@@ -1,6 +1,6 @@
-import { useEffect, useCallback, useRef } from 'react';
-import { EVENT_CONFIG } from '../../shared/constants';
-import type { Product } from '../../shared/types';
+import { useEffect, useCallback, useRef } from "react";
+import { EVENT_CONFIG } from "../../shared/constants";
+import type { Product } from "../../shared/types";
 
 interface UseEventsProps {
   products: Product[];
@@ -12,7 +12,12 @@ interface UseEventsProps {
 /**
  * 이벤트 타이머 시스템을 담당하는 React Hook
  */
-export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }: UseEventsProps) => {
+export const useEvents = ({
+  products,
+  setProducts,
+  cartItems,
+  lastSelectedItem,
+}: UseEventsProps) => {
   const lightningTimerRef = useRef<number | null>(null);
   const suggestionTimerRef = useRef<number | null>(null);
   const lightningIntervalRef = useRef<number | null>(null);
@@ -24,24 +29,29 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
    * 번개세일을 실행합니다
    */
   const triggerLightningSale = useCallback(() => {
-    const eligibleProducts = products.filter(product => 
-      product.quantity > 0 && !product.onSale
+    const eligibleProducts = products.filter(
+      product => product.quantity > 0 && !product.onSale
     );
-    
+
     if (eligibleProducts.length === 0) return;
-    
+
     const luckyIndex = Math.floor(Math.random() * eligibleProducts.length);
     const luckyProduct = eligibleProducts[luckyIndex];
-    
-    setProducts(currentProducts => currentProducts.map(product => 
-      product.id === luckyProduct.id 
-        ? { 
-            ...product, 
-            price: Math.round(product.originalPrice * (1 - EVENT_CONFIG.LIGHTNING_SALE_DISCOUNT_RATE)), 
-            onSale: true 
-          }
-        : product
-    ));
+
+    setProducts(currentProducts =>
+      currentProducts.map(product =>
+        product.id === luckyProduct.id
+          ? {
+              ...product,
+              price: Math.round(
+                product.originalPrice *
+                  (1 - EVENT_CONFIG.LIGHTNING_SALE_DISCOUNT_RATE)
+              ),
+              onSale: true,
+            }
+          : product
+      )
+    );
 
     alert("⚡번개세일! " + luckyProduct.name + "이(가) 20% 할인 중입니다!");
   }, [products, setProducts]);
@@ -51,26 +61,35 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
    */
   const triggerSuggestionSale = useCallback(() => {
     if (cartItems.length === 0 || !lastSelectedItem) return;
-    
-    const suggestedProduct = products.find(product => 
-      product.id !== lastSelectedItem && 
-      product.quantity > 0 && 
-      !product.suggestSale
-    );
-    
-    if (!suggestedProduct) return;
-    
-    setProducts(currentProducts => currentProducts.map(product => 
-      product.id === suggestedProduct.id 
-        ? { 
-            ...product, 
-            price: Math.round(product.price * (1 - EVENT_CONFIG.SUGGESTION_DISCOUNT_RATE)), 
-            suggestSale: true 
-          }
-        : product
-    ));
 
-    alert("💝 " + suggestedProduct.name + "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!");
+    const suggestedProduct = products.find(
+      product =>
+        product.id !== lastSelectedItem &&
+        product.quantity > 0 &&
+        !product.suggestSale
+    );
+
+    if (!suggestedProduct) return;
+
+    setProducts(currentProducts =>
+      currentProducts.map(product =>
+        product.id === suggestedProduct.id
+          ? {
+              ...product,
+              price: Math.round(
+                product.price * (1 - EVENT_CONFIG.SUGGESTION_DISCOUNT_RATE)
+              ),
+              suggestSale: true,
+            }
+          : product
+      )
+    );
+
+    alert(
+      "💝 " +
+        suggestedProduct.name +
+        "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!"
+    );
   }, [products, setProducts, cartItems.length, lastSelectedItem]);
 
   // ==================== Timer Setup ====================
@@ -80,7 +99,7 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
    */
   const startLightningSaleTimer = useCallback(() => {
     const delay = Math.random() * EVENT_CONFIG.LIGHTNING_SALE_MAX_DELAY;
-    
+
     lightningTimerRef.current = window.setTimeout(() => {
       lightningIntervalRef.current = window.setInterval(() => {
         triggerLightningSale();
@@ -93,7 +112,7 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
    */
   const startSuggestionSaleTimer = useCallback(() => {
     const delay = Math.random() * EVENT_CONFIG.SUGGESTION_SALE_MAX_DELAY;
-    
+
     suggestionTimerRef.current = window.setTimeout(() => {
       suggestionIntervalRef.current = window.setInterval(() => {
         triggerSuggestionSale();
@@ -135,6 +154,6 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
   return {
     triggerLightningSale,
     triggerSuggestionSale,
-    cleanupTimers
+    cleanupTimers,
   };
-}; 
+};

@@ -4,10 +4,12 @@
  */
 
 // Constants import
-import { 
-  INITIAL_PRODUCT_DATA, 
-  SUPER_SALE_TEXT, LIGHTNING_SALE_TEXT, SUGGESTION_SALE_TEXT 
-} from '../constants.js';
+import {
+  INITIAL_PRODUCT_DATA,
+  SUPER_SALE_TEXT,
+  LIGHTNING_SALE_TEXT,
+  SUGGESTION_SALE_TEXT,
+} from "../constants.js";
 
 // ==================== Product Data Management ====================
 
@@ -36,8 +38,8 @@ export const findProductById = (productId, productList) => {
  * @returns {Array} 재고 부족 상품 목록
  */
 export const getLowStockProducts = (productList, threshold) => {
-  return productList.filter(product => 
-    product.quantity > 0 && product.quantity < threshold
+  return productList.filter(
+    product => product.quantity > 0 && product.quantity < threshold
   );
 };
 
@@ -57,49 +59,50 @@ export const getLowStockProducts = (productList, threshold) => {
  * @returns {string} returns.className - CSS 클래스명
  * @returns {boolean} returns.disabled - 비활성화 여부
  */
-export const getOptionData = (item) => {
-  const discountText = (item.onSale ? " ⚡SALE" : "") + (item.suggestSale ? " 💝추천" : "");
-  
+export const getOptionData = item => {
+  const discountText =
+    (item.onSale ? " ⚡SALE" : "") + (item.suggestSale ? " 💝추천" : "");
+
   // 품절인 경우
   if (item.quantity === 0) {
     return {
       textContent: `${item.name} - ${item.price}원 (품절)${discountText}`,
       className: "text-gray-400",
-      disabled: true
+      disabled: true,
     };
   }
-  
+
   // 경우별 매핑 객체
   const saleTypeMap = {
     bothSales: item.onSale && item.suggestSale,
-    lightningOnly: item.onSale && !item.suggestSale, 
+    lightningOnly: item.onSale && !item.suggestSale,
     suggestionOnly: !item.onSale && item.suggestSale,
-    normal: !item.onSale && !item.suggestSale
+    normal: !item.onSale && !item.suggestSale,
   };
-  
+
   const optionConfigs = {
     bothSales: {
       textContent: `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (${SUPER_SALE_TEXT})`,
       className: "text-purple-600 font-bold",
-      disabled: false
+      disabled: false,
     },
     lightningOnly: {
       textContent: `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (${LIGHTNING_SALE_TEXT})`,
-      className: "text-red-500 font-bold", 
-      disabled: false
+      className: "text-red-500 font-bold",
+      disabled: false,
     },
     suggestionOnly: {
       textContent: `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (${SUGGESTION_SALE_TEXT})`,
       className: "text-blue-500 font-bold",
-      disabled: false
+      disabled: false,
     },
     normal: {
       textContent: `${item.name} - ${item.price}원${discountText}`,
       className: "",
-      disabled: false
-    }
+      disabled: false,
+    },
   };
-  
+
   // 해당하는 경우 찾기
   const activeType = Object.keys(saleTypeMap).find(type => saleTypeMap[type]);
   return optionConfigs[activeType];
@@ -117,35 +120,35 @@ export const getOptionData = (item) => {
  * @returns {string} returns.priceHtml - 가격 HTML
  * @returns {string} returns.nameText - 이름 텍스트
  */
-export const getProductDisplayInfo = (product) => {
+export const getProductDisplayInfo = product => {
   const hasBothSales = product.onSale && product.suggestSale;
   const hasLightningSale = product.onSale && !product.suggestSale;
   const hasSuggestionSale = !product.onSale && product.suggestSale;
-  
+
   if (hasBothSales) {
     return {
       priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-purple-600">₩${product.price.toLocaleString()}</span>`,
-      nameText: "⚡💝" + product.name
+      nameText: "⚡💝" + product.name,
     };
   }
-  
+
   if (hasLightningSale) {
     return {
       priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-red-500">₩${product.price.toLocaleString()}</span>`,
-      nameText: "⚡" + product.name
+      nameText: "⚡" + product.name,
     };
   }
-  
+
   if (hasSuggestionSale) {
     return {
       priceHtml: `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-blue-500">₩${product.price.toLocaleString()}</span>`,
-      nameText: "💝" + product.name
+      nameText: "💝" + product.name,
     };
   }
-  
+
   return {
     priceHtml: `₩${product.price.toLocaleString()}`,
-    nameText: product.name
+    nameText: product.name,
   };
 };
 
@@ -155,17 +158,29 @@ export const getProductDisplayInfo = (product) => {
  * @param {Element} productSelectElement - select DOM element
  * @param {number} totalStockWarningThreshold - 재고 경고 임계값
  */
-export const updateSelectOptions = (productList, productSelectElement, totalStockWarningThreshold) => {
-  const totalStock = productList.reduce((sum, product) => sum + product.quantity, 0);
+export const updateSelectOptions = (
+  productList,
+  productSelectElement,
+  totalStockWarningThreshold
+) => {
+  const totalStock = productList.reduce(
+    (sum, product) => sum + product.quantity,
+    0
+  );
 
-  const optionsHTML = productList.map(item => {
-    const optionData = getOptionData(item);
-    const disabledAttr = optionData.disabled ? ' disabled' : '';
-    const classAttr = optionData.className ? ` class="${optionData.className}"` : '';
-    
-    return `<option value="${item.id}"${disabledAttr}${classAttr}>${optionData.textContent}</option>`;
-  }).join('');
+  const optionsHTML = productList
+    .map(item => {
+      const optionData = getOptionData(item);
+      const disabledAttr = optionData.disabled ? " disabled" : "";
+      const classAttr = optionData.className
+        ? ` class="${optionData.className}"`
+        : "";
+
+      return `<option value="${item.id}"${disabledAttr}${classAttr}>${optionData.textContent}</option>`;
+    })
+    .join("");
 
   productSelectElement.innerHTML = optionsHTML;
-  productSelectElement.style.borderColor = totalStock < totalStockWarningThreshold ? "orange" : "";
+  productSelectElement.style.borderColor =
+    totalStock < totalStockWarningThreshold ? "orange" : "";
 };

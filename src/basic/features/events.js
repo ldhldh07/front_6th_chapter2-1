@@ -10,25 +10,25 @@ import {
   SUGGESTION_DISCOUNT_RATE,
   SUGGESTION_SALE_MAX_DELAY,
   SUGGESTION_INTERVAL_MS,
-  TOTAL_STOCK_WARNING_THRESHOLD
-} from '../constants.js';
-import { updateSelectOptions, findProductById, getProductDisplayInfo, updatePricesInCart } from './products.js';
+  TOTAL_STOCK_WARNING_THRESHOLD,
+} from "../constants.js";
+import {
+  updateSelectOptions,
+  findProductById,
+  getProductDisplayInfo,
+  updatePricesInCart,
+} from "./products.js";
 
 /**
  * 번개세일과 추천상품 할인 이벤트 타이머를 설정합니다
  * @param {Object} config - 설정 객체
  * @param {Array} config.productList - 상품 목록
- * @param {Object} config.appState - 앱 상태 
+ * @param {Object} config.appState - 앱 상태
  * @param {Object} config.domRefs - DOM 참조
  * @param {Function} config.calculateCartTotals - 장바구니 계산 함수 (main.basic.js 로컬 함수)
  */
-export const setupEventTimers = (config) => {
-  const { 
-    productList, 
-    appState, 
-    domRefs, 
-    calculateCartTotals
-  } = config;
+export const setupEventTimers = config => {
+  const { productList, appState, domRefs, calculateCartTotals } = config;
 
   // Lightning Sale Timer
   const lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
@@ -42,28 +42,39 @@ export const setupEventTimers = (config) => {
         );
         luckyItem.onSale = true;
         alert("⚡번개세일! " + luckyItem.name + "이(가) 20% 할인 중입니다!");
-        updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
-        updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
+        updateSelectOptions(
+          productList,
+          domRefs.productSelect,
+          TOTAL_STOCK_WARNING_THRESHOLD
+        );
+        updatePricesInCart(
+          domRefs.cartDisplay.children,
+          productList,
+          findProductById,
+          getProductDisplayInfo,
+          calculateCartTotals
+        );
       }
     }, LIGHTNING_SALE_DURATION);
   }, lightningDelay);
 
-  // Suggestion Sale Timer  
+  // Suggestion Sale Timer
   setTimeout(() => {
     setInterval(() => {
       if (domRefs.cartDisplay.children.length === 0) {
         return;
       }
       if (!appState.lastSelectedItem) return;
-      
-      const suggestedProduct = productList.find(product => 
-        product.id !== appState.lastSelectedItem && 
-        product.quantity > 0 && 
-        !product.suggestSale
+
+      const suggestedProduct = productList.find(
+        product =>
+          product.id !== appState.lastSelectedItem &&
+          product.quantity > 0 &&
+          !product.suggestSale
       );
-      
+
       if (!suggestedProduct) return;
-      
+
       alert(
         "💝 " +
           suggestedProduct.name +
@@ -74,8 +85,18 @@ export const setupEventTimers = (config) => {
         suggestedProduct.price * (1 - SUGGESTION_DISCOUNT_RATE)
       );
       suggestedProduct.suggestSale = true;
-      updateSelectOptions(productList, domRefs.productSelect, TOTAL_STOCK_WARNING_THRESHOLD);
-      updatePricesInCart(domRefs.cartDisplay.children, productList, findProductById, getProductDisplayInfo, calculateCartTotals);
+      updateSelectOptions(
+        productList,
+        domRefs.productSelect,
+        TOTAL_STOCK_WARNING_THRESHOLD
+      );
+      updatePricesInCart(
+        domRefs.cartDisplay.children,
+        productList,
+        findProductById,
+        getProductDisplayInfo,
+        calculateCartTotals
+      );
     }, SUGGESTION_INTERVAL_MS);
   }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
-}; 
+};

@@ -23,7 +23,10 @@ export const formatPriceKorean = (price: number): string => {
 /**
  * ID로 상품을 찾습니다
  */
-export const findProductById = <T extends { id: string }>(products: T[], productId: string): T | undefined => {
+export const findProductById = <T extends { id: string }>(
+  products: T[],
+  productId: string
+): T | undefined => {
   return products.find(product => product.id === productId);
 };
 
@@ -37,6 +40,8 @@ export const calculateItemTotal = (price: number, quantity: number): number => {
 /**
  * 장바구니 아이템들의 총 수량을 계산합니다
  */
-export const calculateTotalQuantity = (cartItems: { quantity: number }[]): number => {
+export const calculateTotalQuantity = (
+  cartItems: { quantity: number }[]
+): number => {
   return cartItems.reduce((sum, item) => sum + item.quantity, 0);
 };
