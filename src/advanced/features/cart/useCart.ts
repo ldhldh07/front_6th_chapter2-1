@@ -13,15 +13,36 @@ export const useCart = () => {
     selectedItemId: string,
     productList: Product[]
   ) => {
-    if (!selectedItemId)
+    // 입력값 타입 검증
+    if (typeof selectedItemId !== "string" || !selectedItemId.trim()) {
       return { isValid: false, reason: "no_product_selected" };
+    }
+
+    if (!Array.isArray(productList)) {
+      console.warn("validateAddToCartInput: productList가 배열이 아닙니다");
+      return { isValid: false, reason: "invalid_product_list" };
+    }
 
     const selectedProduct = findProductById(productList, selectedItemId);
-    if (!selectedProduct)
+    if (!selectedProduct) {
       return { isValid: false, reason: "product_not_found" };
+    }
 
-    if (selectedProduct.quantity <= 0)
+    // 상품 데이터 무결성 검증
+    if (
+      typeof selectedProduct.quantity !== "number" ||
+      selectedProduct.quantity < 0
+    ) {
+      console.warn(
+        "validateAddToCartInput: 상품 수량이 잘못되었습니다",
+        selectedProduct
+      );
+      return { isValid: false, reason: "invalid_product_data" };
+    }
+
+    if (selectedProduct.quantity <= 0) {
       return { isValid: false, reason: "out_of_stock" };
+    }
 
     return { isValid: true, product: selectedProduct };
   };

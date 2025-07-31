@@ -37,6 +37,11 @@ export const useProducts = () => {
   ) => {
     if (!hasDiscount) return formatPriceKorean(currentPrice);
 
+    if (basePrice <= 0) {
+      console.warn("basePrice가 0 이하입니다:", basePrice);
+      return formatPriceKorean(currentPrice);
+    }
+
     const discountRate = Math.round(
       ((basePrice - currentPrice) / basePrice) * 100
     );

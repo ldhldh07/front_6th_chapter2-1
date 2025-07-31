@@ -124,21 +124,25 @@ export const useEvents = ({
    * 모든 타이머를 정리합니다
    */
   const cleanupTimers = useCallback(() => {
-    if (lightningTimerRef.current) {
-      clearTimeout(lightningTimerRef.current);
-      lightningTimerRef.current = null;
-    }
-    if (suggestionTimerRef.current) {
-      clearTimeout(suggestionTimerRef.current);
-      suggestionTimerRef.current = null;
-    }
-    if (lightningIntervalRef.current) {
-      clearInterval(lightningIntervalRef.current);
-      lightningIntervalRef.current = null;
-    }
-    if (suggestionIntervalRef.current) {
-      clearInterval(suggestionIntervalRef.current);
-      suggestionIntervalRef.current = null;
+    try {
+      if (lightningTimerRef.current) {
+        clearTimeout(lightningTimerRef.current);
+        lightningTimerRef.current = null;
+      }
+      if (suggestionTimerRef.current) {
+        clearTimeout(suggestionTimerRef.current);
+        suggestionTimerRef.current = null;
+      }
+      if (lightningIntervalRef.current) {
+        clearInterval(lightningIntervalRef.current);
+        lightningIntervalRef.current = null;
+      }
+      if (suggestionIntervalRef.current) {
+        clearInterval(suggestionIntervalRef.current);
+        suggestionIntervalRef.current = null;
+      }
+    } catch (error) {
+      console.warn("타이머 정리 중 에러:", error);
     }
   }, []);
 

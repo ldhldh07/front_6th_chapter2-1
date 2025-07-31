@@ -61,11 +61,13 @@ function App() {
 
     const result = handleAddToCart(selectedProductId, products);
     if (!result.success) {
-      if (result.reason === "out_of_stock") {
-        alert("재고가 부족합니다.");
-      } else {
-        alert("상품을 추가할 수 없습니다.");
-      }
+      const message =
+        result.reason === "out_of_stock"
+          ? "재고가 부족합니다."
+          : "상품을 추가할 수 없습니다.";
+
+      // TODO: 추후 토스트 알림이나 모달로 개선 가능
+      alert(message);
     } else {
       setLastSelectedItem(selectedProductId);
     }
