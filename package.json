@@ -16,7 +16,8 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/",
-    "format:check": "prettier --check src/"
+    "format:check": "prettier --check src/",
+    "deploy": "pnpm run build && cp dist/index.advanced.html dist/index.html && gh-pages -d dist"
   },
   "devDependencies": {
     "@eslint/js": "9.32.0",
@@ -28,6 +29,7 @@
     "@vitest/ui": "^3.2.4",
     "eslint": "9.32.0",
     "eslint-config-prettier": "10.1.8",
+    "gh-pages": "6.3.0",
     "jsdom": "^26.1.0",
     "prettier": "3.6.2",
     "typescript": "5.8.3",
