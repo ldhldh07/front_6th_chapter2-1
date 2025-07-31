@@ -20,14 +20,8 @@ export const useProducts = () => {
   };
 
   const getOptionData = (item: Product) => {
-    const displayName =
-      item.onSale && item.suggestSale
-        ? `⚡💝${item.name} - ${formatPriceKorean(item.price)}`
-        : item.onSale
-          ? `⚡${item.name} - ${formatPriceKorean(item.price)}`
-          : item.suggestSale
-            ? `💝${item.name} - ${formatPriceKorean(item.price)}`
-            : `${item.name} - ${formatPriceKorean(item.price)}`;
+    const saleIcon = (item.onSale ? "⚡" : "") + (item.suggestSale ? "💝" : "");
+    const displayName = `${saleIcon}${item.name} - ${formatPriceKorean(item.price)}`;
 
     return {
       value: item.id,
