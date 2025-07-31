@@ -45,3 +45,18 @@ export const calculateTotalQuantity = (
 ): number => {
   return cartItems.reduce((sum, item) => sum + item.quantity, 0);
 };
+
+/**
+ * 장바구니 아이템들의 소계를 계산합니다
+ */
+export const calculateSubtotal = <T extends { id: string; price: number }>(
+  cartItems: { id: string; quantity: number }[],
+  products: T[]
+): number => {
+  return cartItems.reduce((total, item) => {
+    const product = findProductById(products, item.id);
+    return (
+      total + (product ? calculateItemTotal(product.price, item.quantity) : 0)
+    );
+  }, 0);
+};

@@ -1,5 +1,10 @@
 import type { CartItem, Product, DiscountResult, PointsResult } from "../types";
-import { formatPrice, calculateItemTotal, findProductById } from "../utils";
+import {
+  formatPrice,
+  calculateItemTotal,
+  findProductById,
+  calculateSubtotal,
+} from "../utils";
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
@@ -14,12 +19,7 @@ export const OrderSummary = ({
   discountResult,
   pointsResult,
 }: OrderSummaryProps) => {
-  const subtotal = cartItems.reduce((total, item) => {
-    const product = products.find(p => p.id === item.id);
-    return (
-      total + (product ? calculateItemTotal(product.price, item.quantity) : 0)
-    );
-  }, 0);
+  const subtotal = calculateSubtotal(cartItems, products);
 
   return (
     <div className="bg-black text-white p-8 flex flex-col">
