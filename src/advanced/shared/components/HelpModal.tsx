@@ -1,3 +1,12 @@
+import {
+  DISCOUNT_RATES,
+  QUANTITY_DISCOUNT_THRESHOLD,
+  BULK_DISCOUNT_THRESHOLD,
+  POINTS,
+  BULK_THRESHOLDS,
+  TUESDAY_ADDITIONAL_DISCOUNT_RATE,
+} from "../constants";
+
 interface HelpModalProps {
   isOpen: boolean;
   isClosing?: boolean;
@@ -52,25 +61,28 @@ export const HelpModal = ({
             <div className="bg-gray-100 rounded-lg p-3">
               <p className="font-semibold text-sm mb-1">개별 상품</p>
               <p className="text-gray-700 text-xs pl-2">
-                • 키보드 10개↑: 10%
-                <br />
-                • 마우스 10개↑: 15%
-                <br />
-                • 모니터암 10개↑: 20%
-                <br />• 스피커 10개↑: 25%
+                • 키보드 {QUANTITY_DISCOUNT_THRESHOLD}개↑:{" "}
+                {DISCOUNT_RATES.KEYBOARD * 100}%
+                <br />• 마우스 {QUANTITY_DISCOUNT_THRESHOLD}개↑:{" "}
+                {DISCOUNT_RATES.MOUSE * 100}%
+                <br />• 모니터암 {QUANTITY_DISCOUNT_THRESHOLD}개↑:{" "}
+                {DISCOUNT_RATES.MONITOR_ARM * 100}%
+                <br />• 스피커 {QUANTITY_DISCOUNT_THRESHOLD}개↑:{" "}
+                {DISCOUNT_RATES.SPEAKER * 100}%
               </p>
             </div>
             <div className="bg-gray-100 rounded-lg p-3">
               <p className="font-semibold text-sm mb-1">전체 수량</p>
-              <p className="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
+              <p className="text-gray-700 text-xs pl-2">
+                • {BULK_DISCOUNT_THRESHOLD}개 이상: {DISCOUNT_RATES.BULK * 100}%
+              </p>
             </div>
             <div className="bg-gray-100 rounded-lg p-3">
               <p className="font-semibold text-sm mb-1">특별 할인</p>
               <p className="text-gray-700 text-xs pl-2">
-                • 화요일: +10%
-                <br />
-                • ⚡번개세일: 20%
-                <br />• 💝추천할인: 5%
+                • 화요일: +{TUESDAY_ADDITIONAL_DISCOUNT_RATE * 100}%
+                <br />• ⚡번개세일: {DISCOUNT_RATES.LIGHTNING_SALE * 100}%
+                <br />• 💝추천할인: {DISCOUNT_RATES.SUGGESTION * 100}%
               </p>
             </div>
           </div>
@@ -81,17 +93,19 @@ export const HelpModal = ({
           <div className="space-y-3">
             <div className="bg-gray-100 rounded-lg p-3">
               <p className="font-semibold text-sm mb-1">기본</p>
-              <p className="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
+              <p className="text-gray-700 text-xs pl-2">
+                • 구매액의 {(1 / POINTS.CALCULATION_BASE) * 100}%
+              </p>
             </div>
             <div className="bg-gray-100 rounded-lg p-3">
               <p className="font-semibold text-sm mb-1">추가</p>
               <p className="text-gray-700 text-xs pl-2">
                 • 화요일: 2배
-                <br />
-                • 키보드+마우스: +50p
-                <br />
-                • 풀세트: +100p
-                <br />• 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+                <br />• 키보드+마우스: +{POINTS.COMBO_BONUS}p
+                <br />• 풀세트: +{POINTS.FULL_SET_BONUS}p
+                <br />• {BULK_THRESHOLDS.SMALL}개↑: +{POINTS.SMALL_BULK_BONUS}p
+                / {BULK_THRESHOLDS.MEDIUM}개↑: +{POINTS.MEDIUM_BULK_BONUS}p /{" "}
+                {BULK_THRESHOLDS.LARGE}개↑: +{POINTS.LARGE_BULK_BONUS}p
               </p>
             </div>
           </div>
