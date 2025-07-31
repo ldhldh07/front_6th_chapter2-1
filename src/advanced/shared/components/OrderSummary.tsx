@@ -1,4 +1,5 @@
 import type { CartItem, Product, DiscountResult, PointsResult } from '../types';
+import { formatPrice, calculateItemTotal, findProductById } from '../utils';
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
@@ -10,7 +11,7 @@ interface OrderSummaryProps {
 export const OrderSummary = ({ cartItems, products, discountResult, pointsResult }: OrderSummaryProps) => {
   const subtotal = cartItems.reduce((total, item) => {
     const product = products.find(p => p.id === item.id);
-    return total + (product ? product.price * item.quantity : 0);
+    return total + (product ? calculateItemTotal(product.price, item.quantity) : 0);
   }, 0);
 
   return (
@@ -22,13 +23,13 @@ export const OrderSummary = ({ cartItems, products, discountResult, pointsResult
           {cartItems.length > 0 && (
             <>
               {cartItems.map(item => {
-                const product = products.find(p => p.id === item.id);
+                const product = findProductById(products, item.id);
                 if (!product) return null;
-                const itemTotal = product.price * item.quantity;
+                const itemTotal = calculateItemTotal(product.price, item.quantity);
                 return (
                   <div key={item.id} className="flex justify-between text-xs tracking-wide text-gray-400">
                     <span>{product.name} x {item.quantity}</span>
-                    <span>₩{itemTotal.toLocaleString()}</span>
+                    <span>{formatPrice(itemTotal)}</span>
                   </div>
                 );
               })}
@@ -36,7 +37,7 @@ export const OrderSummary = ({ cartItems, products, discountResult, pointsResult
               <div className="border-t border-white/10 my-3"></div>
               <div className="flex justify-between text-sm tracking-wide">
                 <span>Subtotal</span>
-                <span>₩{subtotal.toLocaleString()}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
 
               {/* 할인 정보 표시 */}
@@ -76,7 +77,7 @@ export const OrderSummary = ({ cartItems, products, discountResult, pointsResult
                 <span className="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
                 <span className="text-sm font-medium text-green-400">{(discountResult.discRate * 100).toFixed(1)}%</span>
               </div>
-              <div className="text-2xs text-gray-300">₩{discountResult.savedAmount.toLocaleString()} 할인되었습니다</div>
+                              <div className="text-2xs text-gray-300">{formatPrice(discountResult.savedAmount)} 할인되었습니다</div>
             </div>
           )}
           
@@ -84,7 +85,7 @@ export const OrderSummary = ({ cartItems, products, discountResult, pointsResult
             <div className="flex justify-between items-baseline">
               <span className="text-sm uppercase tracking-wider">Total</span>
               <div className="text-2xl tracking-tight">
-                ₩{discountResult.totalAmount.toLocaleString()}
+                {formatPrice(discountResult.totalAmount)}
               </div>
             </div>
             <div id="loyalty-points" className="text-xs text-blue-400 mt-2 text-right">

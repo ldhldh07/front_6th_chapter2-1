@@ -8,6 +8,7 @@ import {
   TUESDAY_ADDITIONAL_DISCOUNT_RATE
 } from '../../shared/constants';
 import type { Product, CartItem, DiscountResult, DiscountInfo, TuesdayDiscountResult } from '../../shared/types';
+import { calculateTotalQuantity, calculateItemTotal, findProductById } from '../../shared/utils';
 
 /**
  * 할인 계산을 담당하는 React Hook
@@ -111,14 +112,14 @@ export const useDiscounts = () => {
     cartItems: CartItem[],
     products: Product[]
   ): DiscountResult => {
-    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = calculateTotalQuantity(cartItems);
 
     // 1. 개별 상품 할인 계산
     const { subtotal, totalAmount, itemDiscounts } = cartItems.reduce((acc, cartItem) => {
-      const product = products.find(p => p.id === cartItem.id);
+      const product = findProductById(products, cartItem.id);
       if (!product) return acc;
 
-      const itemTotal = product.price * cartItem.quantity;
+      const itemTotal = calculateItemTotal(product.price, cartItem.quantity);
       const newSubtotal = acc.subtotal + itemTotal;
 
       const discountRate = applyProductDiscount(product, cartItem.quantity, QUANTITY_DISCOUNT_THRESHOLD);

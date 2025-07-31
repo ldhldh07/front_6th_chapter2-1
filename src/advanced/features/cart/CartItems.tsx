@@ -1,4 +1,5 @@
 import type { CartItem, Product } from '../../shared/types';
+import { formatPrice, findProductById } from '../../shared/utils';
 
 interface CartItemsProps {
   cartItems: CartItem[];
@@ -10,14 +11,14 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
   return (
     <div>
       {cartItems.map(item => {
-        const product = products.find(product => product.id === item.id);
+        const product = findProductById(products, item.id);
         if (!product) return null;
 
         const saleIcon = (product.onSale ? "⚡" : "") + (product.suggestSale ? "💝" : "");
         
         const priceDisplay = product.onSale || product.suggestSale ? 
-          `₩${product.originalPrice.toLocaleString()}` : 
-          `₩${product.price.toLocaleString()}`;
+          formatPrice(product.originalPrice) : 
+          formatPrice(product.price);
 
         const priceTextColor = product.onSale || product.suggestSale ?
           product.onSale && product.suggestSale ? "text-purple-600" :
@@ -37,7 +38,7 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
                   <>
                     <span className="line-through text-gray-400">{priceDisplay}</span>
                     {' '}
-                    <span className={priceTextColor}>₩{product.price.toLocaleString()}</span>
+                    <span className={priceTextColor}>{formatPrice(product.price)}</span>
                   </>
                 ) : (
                   priceDisplay
@@ -64,12 +65,12 @@ export const CartItems = ({ cartItems, products, onCartAction }: CartItemsProps)
               <div className="text-lg mb-2 tracking-tight tabular-nums">
                 {product.onSale || product.suggestSale ? (
                   <>
-                    <span className="line-through text-gray-400">₩{product.originalPrice.toLocaleString()}</span>
+                    <span className="line-through text-gray-400">{formatPrice(product.originalPrice)}</span>
                     {' '}
-                    <span className={priceTextColor}>₩{product.price.toLocaleString()}</span>
+                    <span className={priceTextColor}>{formatPrice(product.price)}</span>
                   </>
                 ) : (
-                  `₩${product.price.toLocaleString()}`
+                  formatPrice(product.price)
                 )}
               </div>
               <button 

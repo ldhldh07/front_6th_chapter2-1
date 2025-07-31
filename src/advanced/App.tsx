@@ -6,6 +6,7 @@ import { useProducts, ProductSelector } from './features/products';
 import { useDiscounts } from './features/discounts';
 import { usePoints } from './features/points';
 import { useEvents } from './features/events';
+import { calculateTotalQuantity } from './shared/utils';
 import { Header, OrderSummary, HelpModal } from './shared/components';
 
 function App() {
@@ -68,7 +69,7 @@ function App() {
   return (
     <div className="app-container">
       {/* Header */}
-      <Header itemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
+      <Header itemCount={calculateTotalQuantity(cartItems)} />
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">

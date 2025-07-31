@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { INITIAL_PRODUCT_DATA } from '../../shared/constants';
 import type { Product } from '../../shared/types';
+import { formatPriceKorean, findProductById } from '../../shared/utils';
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -9,9 +10,7 @@ export const useProducts = () => {
     return [...INITIAL_PRODUCT_DATA];
   };
 
-  const findProductById = (productId: string, productList: Product[]): Product | undefined => {
-    return productList.find(product => product.id === productId);
-  };
+
 
   const getLowStockProducts = (productList: Product[], threshold: number): Product[] => {
     return productList.filter(product => 
@@ -21,12 +20,12 @@ export const useProducts = () => {
 
   const getOptionData = (item: Product) => {
     const displayName = item.onSale && item.suggestSale
-      ? `⚡💝${item.name} - ${item.price.toLocaleString()}원`
+      ? `⚡💝${item.name} - ${formatPriceKorean(item.price)}`
       : item.onSale
-      ? `⚡${item.name} - ${item.price.toLocaleString()}원`
+      ? `⚡${item.name} - ${formatPriceKorean(item.price)}`
       : item.suggestSale
-      ? `💝${item.name} - ${item.price.toLocaleString()}원`
-      : `${item.name} - ${item.price.toLocaleString()}원`;
+      ? `💝${item.name} - ${formatPriceKorean(item.price)}`
+      : `${item.name} - ${formatPriceKorean(item.price)}`;
 
     return {
       value: item.id,
@@ -36,10 +35,10 @@ export const useProducts = () => {
   };
 
   const formatPriceDisplay = (basePrice: number, currentPrice: number, hasDiscount: boolean) => {
-    if (!hasDiscount) return `${currentPrice.toLocaleString()}원`;
+    if (!hasDiscount) return formatPriceKorean(currentPrice);
     
     const discountRate = Math.round(((basePrice - currentPrice) / basePrice) * 100);
-    return `<span class="line-through text-gray-400">${basePrice.toLocaleString()}원</span> → <span class="text-red-600 font-semibold">${currentPrice.toLocaleString()}원 (${discountRate}% 할인)</span>`;
+    return `<span class="line-through text-gray-400">${formatPriceKorean(basePrice)}</span> → <span class="text-red-600 font-semibold">${formatPriceKorean(currentPrice)} (${discountRate}% 할인)</span>`;
   };
 
   const getProductDisplayInfo = (product: Product) => {
@@ -64,7 +63,7 @@ export const useProducts = () => {
     products,
     setProducts,
     initializeProducts,
-    findProductById,
+    findProductById: (productId: string, productList: Product[]) => findProductById(productList, productId),
     getLowStockProducts,
     getOptionData,
     getProductDisplayInfo

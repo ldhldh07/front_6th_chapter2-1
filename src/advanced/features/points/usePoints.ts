@@ -6,6 +6,7 @@ import {
   TUESDAY_DAY_NUMBER
 } from '../../shared/constants';
 import type { Product, CartItem, PointsResult, PointsBonus, TuesdayPointsBonus, ProductTypes } from '../../shared/types';
+import { calculateTotalQuantity, findProductById } from '../../shared/utils';
 
 /**
  * 포인트 계산을 담당하는 React Hook
@@ -19,7 +20,7 @@ export const usePoints = () => {
    */
   const getCartProductTypes = useCallback((cartItems: CartItem[], products: Product[]): ProductTypes => {
     return cartItems.reduce<ProductTypes>((types, cartItem) => {
-      const product = products.find(product => product.id === cartItem.id);
+      const product = findProductById(products, cartItem.id);
       if (!product) return types;
       
       return {
@@ -132,7 +133,7 @@ export const usePoints = () => {
       };
     }
 
-    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = calculateTotalQuantity(cartItems);
     const basePoints = calculateBasePoints(totalAmount);
     
     // 1. 기본 포인트

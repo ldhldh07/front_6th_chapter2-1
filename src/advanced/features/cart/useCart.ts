@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Product, CartItem } from '../../shared/types';
+import { findProductById } from '../../shared/utils';
 
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -10,12 +11,12 @@ export const useCart = () => {
   const handleAddToCart = (selectedItemId: string, productList: Product[]) => {
     if (!selectedItemId) return { success: false, reason: 'no_product_selected' };
 
-    const selectedProduct = productList.find(product => product.id === selectedItemId);
+    const selectedProduct = findProductById(productList, selectedItemId);
     if (!selectedProduct) return { success: false, reason: 'product_not_found' };
     
     if (selectedProduct.quantity <= 0) return { success: false, reason: 'out_of_stock' };
 
-    const existingItem = cartItems.find(item => item.id === selectedProduct.id);
+    const existingItem = findProductById(cartItems, selectedProduct.id);
     
     if (!existingItem) {
       setCartItems(currentCartItems => [...currentCartItems, { id: selectedProduct.id, quantity: 1 }]);
@@ -94,11 +95,11 @@ export const useCart = () => {
   };
 
   const handleCartActions = (action: 'increase' | 'decrease' | 'remove', productId: string, productList: Product[]) => {
-    const product = productList.find(productItem => productItem.id === productId);
+    const product = findProductById(productList, productId);
 
     if (!product) return { success: false, reason: 'product_not_found' };
 
-    const cartItem = cartItems.find(item => item.id === productId);
+    const cartItem = findProductById(cartItems, productId);
 
     if (!cartItem) return { success: false, reason: 'item_not_found' };
 
