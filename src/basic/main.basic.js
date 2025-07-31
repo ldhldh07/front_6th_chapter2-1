@@ -14,7 +14,7 @@ import {
   TOTAL_STOCK_WARNING_THRESHOLD,
 } from "./constants.js";
 
-import { renderApp } from "./app.js";
+import { renderApp, renderCartItems } from "./app.js";
 import { findProductById, updateSelectOptions } from "./features/products.js";
 
 import {
@@ -37,6 +37,7 @@ const appState = {
 
 const dataState = {
   productList: null,
+  cartItems: [],
 };
 
 const domRefs = {
@@ -52,6 +53,82 @@ const domRefs = {
 };
 
 // ==================== Shared Utilities ====================
+
+/**
+ * 장바구니 상태를 업데이트하고 재렌더링합니다 (선언적 방식)
+ */
+const updateCartDisplay = () => {
+  if (domRefs.cartDisplay.children.length === dataState.cartItems.length) {
+    // 기존 DOM 활용: 수량만 업데이트
+    dataState.cartItems.forEach(item => {
+      const itemElement = document.getElementById(item.id);
+      if (itemElement) {
+        const quantityElement = itemElement.querySelector(".quantity-number");
+        if (quantityElement) {
+          quantityElement.textContent = item.quantity;
+        }
+      }
+    });
+  } else {
+    // 전체 재생성: 아이템 추가/제거 시
+    const cartHTML = renderCartItems(
+      dataState.cartItems,
+      dataState.productList
+    );
+    domRefs.cartDisplay.innerHTML = cartHTML;
+  }
+};
+
+/**
+ * 장바구니에 아이템을 추가합니다
+ */
+const addCartItem = (productId, quantity = 1) => {
+  const existingItemIndex = dataState.cartItems.findIndex(
+    item => item.id === productId
+  );
+
+  if (existingItemIndex >= 0) {
+    // 기존 아이템 수량 증가
+    dataState.cartItems[existingItemIndex].quantity += quantity;
+  } else {
+    // 새 아이템 추가
+    dataState.cartItems.push({ id: productId, quantity });
+  }
+
+  updateCartDisplay();
+};
+
+/**
+ * 장바구니 아이템 수량을 변경합니다
+ */
+const updateCartItemQuantity = (productId, newQuantity) => {
+  if (newQuantity <= 0) {
+    // 아이템 제거
+    dataState.cartItems = dataState.cartItems.filter(
+      item => item.id !== productId
+    );
+  } else {
+    // 수량 업데이트
+    const itemIndex = dataState.cartItems.findIndex(
+      item => item.id === productId
+    );
+    if (itemIndex >= 0) {
+      dataState.cartItems[itemIndex].quantity = newQuantity;
+    }
+  }
+
+  updateCartDisplay();
+};
+
+/**
+ * 장바구니에서 아이템을 제거합니다
+ */
+const removeCartItem = productId => {
+  dataState.cartItems = dataState.cartItems.filter(
+    item => item.id !== productId
+  );
+  updateCartDisplay();
+};
 
 // 매뉴얼 시스템은 app.js의 renderApp에 포함됨
 
@@ -157,10 +234,8 @@ const setupManualEvents = () => {
  * 장바구니 총액 계산 및 UI 업데이트
  */
 const calculateCartTotals = () => {
-  const cartItems = domRefs.cartDisplay.children;
-
   const calculationResult = calculateCompleteCartTotals(
-    cartItems,
+    dataState.cartItems,
     dataState.productList,
     {
       TUESDAY_DAY_NUMBER,
@@ -188,7 +263,13 @@ domRefs.addButton.addEventListener("click", () => {
     productList: dataState.productList,
     appState,
     domRefs,
-    functions: { findProductById, calculateCartTotals },
+    dataState,
+    functions: {
+      findProductById,
+      calculateCartTotals,
+      addCartItem,
+      updateCartDisplay,
+    },
   });
 });
 
@@ -196,6 +277,14 @@ domRefs.cartDisplay.addEventListener("click", event => {
   handleCartActions(event, {
     productList: dataState.productList,
     domRefs,
-    functions: { findProductById, calculateCartTotals, updateSelectOptions },
+    dataState,
+    functions: {
+      findProductById,
+      calculateCartTotals,
+      updateSelectOptions,
+      updateCartItemQuantity,
+      removeCartItem,
+      updateCartDisplay,
+    },
   });
 });

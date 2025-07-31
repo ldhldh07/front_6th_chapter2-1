@@ -11,7 +11,7 @@ import {
   TOTAL_STOCK_WARNING_THRESHOLD,
 } from "../constants.js";
 import { updateTuesdayUI } from "./discounts.js";
-import { cartSummary, discountInfo, cartItem } from "../app.js";
+import { cartSummary, discountInfo } from "../app.js";
 import {
   renderBonusPoints,
   calculateBasePoints,
@@ -38,15 +38,14 @@ export const updateItemStyles = (cartItem, quantity) => {
 // ==================== Business Logic ====================
 
 /**
- * 장바구니 아이템의 계산 데이터를 생성합니다
- * @param {HTMLElement} cartItem - 장바구니 DOM 요소
+ * 장바구니 아이템의 계산 데이터를 생성합니다 (상태 기반)
+ * @param {Object} cartItem - 장바구니 아이템 객체 {id, quantity}
  * @param {Array} productList - 상품 목록 배열
  * @returns {Object} 아이템 계산 정보
  */
 export const calculateItemData = (cartItem, productList) => {
   const product = productList.find(product => product.id === cartItem.id);
-  const quantityElement = cartItem.querySelector(".quantity-number");
-  const quantity = parseInt(quantityElement.textContent);
+  const quantity = cartItem.quantity;
   const itemTotal = product.price * quantity;
   const discount =
     quantity >= QUANTITY_DISCOUNT_THRESHOLD
@@ -104,7 +103,7 @@ export const calculateCompleteCartTotals = (
     LOW_STOCK_THRESHOLD,
   } = constants;
 
-  const cartItemsData = Array.from(cartItems).map(cartItem =>
+  const cartItemsData = cartItems.map(cartItem =>
     calculateItemData(cartItem, productList)
   );
 
@@ -186,7 +185,7 @@ export const calculateCompleteCartTotals = (
  * @param {HTMLCollection} cartItems - 장바구니 DOM 요소들
  * @param {Array} productList - 상품 목록
  */
-export const updateCartItemStyles = (cartItems, productList) => {
+export const updateCartItemStyles = cartItems => {
   Array.from(cartItems).forEach(cartItem => {
     const quantityElement = cartItem.querySelector(".quantity-number");
     const quantity = parseInt(quantityElement.textContent);
@@ -254,19 +253,14 @@ export const updateCartTotalsDisplay = (
 
   // 직접 import된 함수들 사용
 
-  // === 1. 상태 업데이트 ===
+  // === 상태 업데이트 ===
   appState.totalAmount = totalAmount;
   appState.itemCount = itemCount;
 
-  // === 2. 아이템 스타일 업데이트 ===
-  cartItemsData.forEach(itemData => {
-    updateItemStyles(itemData.cartItem, itemData.quantity);
-  });
-
-  // === 3. 화요일 UI 업데이트 ===
+  // === 화요일 UI 업데이트 ===
   updateTuesdayUI(isTuesday);
 
-  // === 4. DOM 요소 참조 ===
+  // === DOM 요소 참조 ===
   const {
     itemCountElement,
     summaryDetailsElement: summaryDetails,
@@ -277,7 +271,7 @@ export const updateCartTotalsDisplay = (
   summaryDetails.innerHTML = "";
   discountInfoElement.innerHTML = "";
 
-  // === 5. Summary Details 렌더링 ===
+  // === Summary Details 렌더링 ===
   if (subtotal > 0) {
     const summaryItems = cartItemsData
       .map(itemData => {
@@ -319,7 +313,7 @@ export const updateCartTotalsDisplay = (
     `;
   }
 
-  // === 6. 총액 및 포인트 정보 ===
+  // === 총액 및 포인트 정보 ===
   const totalElement = domRefs.cartTotalElement.querySelector(".text-2xl");
   if (totalElement) {
     totalElement.textContent = "₩" + Math.round(totalAmount).toLocaleString();
@@ -338,7 +332,7 @@ export const updateCartTotalsDisplay = (
     discountInfoElement.innerHTML = discountInfo(discRate, savedAmount);
   }
 
-  // === 7. 아이템 개수 및 상태 표시 ===
+  // === 아이템 개수 및 상태 표시 ===
   if (itemCountElement) {
     const previousItemCount = parseInt(
       itemCountElement.textContent.match(/\d+/) || 0
@@ -349,11 +343,11 @@ export const updateCartTotalsDisplay = (
     }
   }
 
-  // === 8. 재고 정보 표시 ===
+  // === 재고 정보 표시 ===
   const stockMessage = lowStockItems.join("\n");
   domRefs.stockInformation.textContent = stockMessage;
 
-  // === 9. 보너스 포인트 렌더링 ===
+  // === 보너스 포인트 렌더링 ===
   renderBonusPoints(
     domRefs.cartDisplay.children,
     totalAmount,
@@ -381,8 +375,8 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
   const {
     productList,
     appState,
-    domRefs,
-    functions: { findProductById, calculateCartTotals },
+    dataState,
+    functions: { findProductById, calculateCartTotals, updateCartDisplay },
   } = dependencies;
 
   const selectedProduct = findProductById(selectedItemId, productList);
@@ -395,35 +389,30 @@ export const handleAddToCart = (selectedItemId, dependencies) => {
     return { success: false, reason: "out_of_stock" };
   }
 
-  const existingItem = document.getElementById(selectedProduct.id);
+  const existingItem = dataState.cartItems.find(
+    item => item.id === selectedProduct.id
+  );
 
   if (existingItem) {
-    // 기존 아이템 수량 증가
-    const quantityElement = existingItem.querySelector(".quantity-number");
-    const currentQuantity = parseInt(quantityElement.textContent);
-    const newQuantity = currentQuantity + 1;
+    const newQuantity = existingItem.quantity + 1;
 
-    if (newQuantity <= selectedProduct.quantity + currentQuantity) {
-      quantityElement.textContent = newQuantity;
+    if (newQuantity <= selectedProduct.quantity + existingItem.quantity) {
+      dataState.cartItems = dataState.cartItems.map(item =>
+        item.id === selectedProduct.id
+          ? { ...item, quantity: newQuantity }
+          : item
+      );
       selectedProduct.quantity--;
+      updateCartDisplay();
     } else {
       alert("재고가 부족합니다.");
       return { success: false, reason: "insufficient_stock" };
     }
-
-    calculateCartTotals();
-    appState.lastSelectedItem = selectedItemId;
-    return { success: true, product: selectedProduct };
+  } else {
+    dataState.cartItems.push({ id: selectedProduct.id, quantity: 1 });
+    selectedProduct.quantity--;
+    updateCartDisplay();
   }
-
-  // 새 아이템 생성 (HTML 기반)
-  const newItemHTML = `
-    <div id="${selectedProduct.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
-      ${cartItem(selectedProduct)}
-    </div>
-  `;
-  domRefs.cartDisplay.insertAdjacentHTML("beforeend", newItemHTML);
-  selectedProduct.quantity--;
 
   calculateCartTotals();
   appState.lastSelectedItem = selectedItemId;
@@ -441,7 +430,13 @@ export const handleCartActions = (event, dependencies) => {
   const {
     productList,
     domRefs,
-    functions: { findProductById, calculateCartTotals, updateSelectOptions },
+    dataState,
+    functions: {
+      findProductById,
+      calculateCartTotals,
+      updateSelectOptions,
+      updateCartDisplay,
+    },
   } = dependencies;
 
   const target = event.target;
@@ -453,7 +448,6 @@ export const handleCartActions = (event, dependencies) => {
   }
 
   const productId = target.dataset.productId;
-  const cartItemElement = document.getElementById(productId);
   const product = findProductById(productId, productList);
 
   if (!product) {
@@ -462,16 +456,29 @@ export const handleCartActions = (event, dependencies) => {
 
   if (isQuantityButton) {
     const quantityChange = parseInt(target.dataset.change);
-    const quantityElement = cartItemElement.querySelector(".quantity-number");
-    const currentQuantity = parseInt(quantityElement.textContent);
+    const currentCartItem = dataState.cartItems.find(
+      item => item.id === productId
+    );
+
+    if (!currentCartItem) {
+      return { success: false, reason: "cart_item_not_found" };
+    }
+
+    const currentQuantity = currentCartItem.quantity;
     const newQuantity = currentQuantity + quantityChange;
 
     if (newQuantity > 0 && newQuantity <= product.quantity + currentQuantity) {
-      quantityElement.textContent = newQuantity;
+      dataState.cartItems = dataState.cartItems.map(item =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      );
       product.quantity -= quantityChange;
+      updateCartDisplay();
     } else if (newQuantity <= 0) {
+      dataState.cartItems = dataState.cartItems.filter(
+        item => item.id !== productId
+      );
       product.quantity += currentQuantity;
-      cartItemElement.remove();
+      updateCartDisplay();
     } else {
       alert("재고가 부족합니다.");
       return { success: false, reason: "insufficient_stock" };
@@ -487,10 +494,21 @@ export const handleCartActions = (event, dependencies) => {
   }
 
   if (isRemoveButton) {
-    const quantityElement = cartItemElement.querySelector(".quantity-number");
-    const removedQuantity = parseInt(quantityElement.textContent);
+    const currentCartItem = dataState.cartItems.find(
+      item => item.id === productId
+    );
+
+    if (!currentCartItem) {
+      return { success: false, reason: "cart_item_not_found" };
+    }
+
+    const removedQuantity = currentCartItem.quantity;
     product.quantity += removedQuantity;
-    cartItemElement.remove();
+
+    dataState.cartItems = dataState.cartItems.filter(
+      item => item.id !== productId
+    );
+    updateCartDisplay();
   }
 
   calculateCartTotals();
