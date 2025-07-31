@@ -12,6 +12,82 @@ import { useEvents } from "./features/events";
 import { calculateTotalQuantity } from "./shared/utils";
 import { Header, OrderSummary, HelpModal } from "./shared/components";
 
+/**
+ * 모달 애니메이션 상태를 관리하는 커스텀 훅
+ */
+const useModalAnimation = (animationDuration = 300) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const openModal = () => {
+    setIsOpen(true);
+    setIsClosing(false);
+  };
+
+  const closeModal = () => {
+    if (!isOpen || isClosing) return;
+
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+    }, animationDuration);
+  };
+
+  const toggleModal = () => {
+    if (isOpen && !isClosing) {
+      closeModal();
+    } else if (!isOpen) {
+      openModal();
+    }
+  };
+
+  return { isOpen, isClosing, openModal, closeModal, toggleModal };
+};
+
+/**
+ * 메시지 처리 유틸리티
+ */
+const getErrorMessage = (reason: string | undefined): string => {
+  const errorMessages = {
+    out_of_stock: "재고가 부족합니다.",
+    invalid_product: "유효하지 않은 상품입니다.",
+    default: "상품을 추가할 수 없습니다.",
+  } as const;
+
+  return (
+    errorMessages[reason as keyof typeof errorMessages] || errorMessages.default
+  );
+};
+
+/**
+ * 재고 관련 UI 데이터를 계산하는 커스텀 훅
+ */
+const useStockDisplayData = (
+  products: Product[],
+  getLowStockProducts: (products: Product[], threshold: number) => Product[]
+) => {
+  const totalStock = useMemo(() => {
+    return products.reduce((sum, product) => sum + product.quantity, 0);
+  }, [products]);
+
+  const lowStockProducts = useMemo(() => {
+    return getLowStockProducts(products, 5);
+  }, [getLowStockProducts, products]);
+
+  const stockMessage = useMemo(() => {
+    return lowStockProducts
+      .map((product: Product) =>
+        product.quantity > 0
+          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+          : `${product.name}: 품절`
+      )
+      .join("\n");
+  }, [lowStockProducts]);
+
+  return { totalStock, lowStockProducts, stockMessage };
+};
+
 function App() {
   const {
     cartItems,
@@ -24,9 +100,13 @@ function App() {
   const { calculateDiscounts } = useDiscounts();
   const { calculatePoints } = usePoints();
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [showManual, setShowManual] = useState(false);
-  const [isManualClosing, setIsManualClosing] = useState(false);
   const [lastSelectedItem, setLastSelectedItem] = useState<string | null>(null);
+
+  const {
+    isOpen: showManual,
+    isClosing: isManualClosing,
+    toggleModal,
+  } = useModalAnimation(300);
 
   // 할인 계산
   const discountResult = useMemo(() => {
@@ -50,40 +130,21 @@ function App() {
     setProducts([...INITIAL_PRODUCT_DATA]);
   }, []);
 
-  const totalStock = useMemo(() => {
-    return products.reduce((sum, product) => sum + product.quantity, 0);
-  }, [products]);
-
-  const lowStockProducts = useMemo(() => {
-    return getLowStockProducts(products, 5);
-  }, [getLowStockProducts, products]);
-
-  const getAddToCartMessage = (reason: string | undefined) => {
-    return reason === "out_of_stock"
-      ? "재고가 부족합니다."
-      : "상품을 추가할 수 없습니다.";
-  };
+  const { totalStock, stockMessage } = useStockDisplayData(
+    products,
+    getLowStockProducts
+  );
 
   const handleAddClick = () => {
     if (!selectedProductId) return;
 
     const result = handleAddToCart(selectedProductId, products);
     if (!result.success) {
-      alert(getAddToCartMessage(result.reason));
+      alert(getErrorMessage(result.reason));
     } else {
       setLastSelectedItem(selectedProductId);
     }
   };
-
-  const stockMessage = useMemo(() => {
-    return lowStockProducts
-      .map(product =>
-        product.quantity > 0
-          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
-          : `${product.name}: 품절`
-      )
-      .join("\n");
-  }, [lowStockProducts]);
 
   return (
     <div className="app-container">
@@ -123,19 +184,7 @@ function App() {
 
       {/* Help Button */}
       <button
-        onClick={() => {
-          if (showManual && !isManualClosing) {
-            // 모달이 열려있으면 닫기
-            setIsManualClosing(true);
-            setTimeout(() => {
-              setShowManual(false);
-              setIsManualClosing(false);
-            }, 300);
-          } else {
-            // 모달이 닫혀있으면 열기
-            setShowManual(true);
-          }
-        }}
+        onClick={toggleModal}
         className="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
       >
         <svg
@@ -157,13 +206,7 @@ function App() {
       <HelpModal
         isOpen={showManual}
         isClosing={isManualClosing}
-        onClose={() => {
-          setIsManualClosing(true);
-          setTimeout(() => {
-            setShowManual(false);
-            setIsManualClosing(false);
-          }, 300);
-        }}
+        onClose={toggleModal}
       />
 
       {/* Event Notifications */}
