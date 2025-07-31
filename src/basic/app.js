@@ -170,40 +170,85 @@ export const discountInfo = (discRate, savedAmount) => `
  * @param {Object} selectedProduct - 선택된 상품 정보
  * @returns {string} HTML
  */
-export const cartItem = selectedProduct => {
-  const saleIcon =
-    selectedProduct.onSale && selectedProduct.suggestSale
-      ? "⚡💝"
-      : selectedProduct.onSale
-        ? "⚡"
-        : selectedProduct.suggestSale
-          ? "💝"
-          : "";
+/**
+ * 단일 장바구니 아이템 HTML 생성 (수량 포함)
+ * @param {Object} product - 상품 정보
+ * @param {number} quantity - 장바구니 수량
+ * @returns {string} 장바구니 아이템 HTML
+ */
+export const cartItem = (product, quantity = 1) => {
+  const saleStates = {
+    both: "⚡💝",
+    lightning: "⚡",
+    suggest: "💝",
+    none: "",
+  };
+
+  const priceColors = {
+    both: "text-purple-600",
+    lightning: "text-red-500",
+    suggest: "text-blue-500",
+    none: "text-black",
+  };
+
+  const getSaleState = (onSale, suggestSale) => {
+    if (onSale && suggestSale) return "both";
+    if (onSale) return "lightning";
+    if (suggestSale) return "suggest";
+    return "none";
+  };
+
+  const saleState = getSaleState(product.onSale, product.suggestSale);
+  const saleIcon = saleStates[saleState];
 
   const priceDisplay =
-    selectedProduct.onSale || selectedProduct.suggestSale
-      ? `<span class="line-through text-gray-400">₩${selectedProduct.originalPrice.toLocaleString()}</span> <span class="${selectedProduct.onSale && selectedProduct.suggestSale ? "text-purple-600" : selectedProduct.onSale ? "text-red-500" : "text-blue-500"}">₩${selectedProduct.price.toLocaleString()}</span>`
-      : `₩${selectedProduct.price.toLocaleString()}`;
+    saleState !== "none"
+      ? `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${priceColors[saleState]}">₩${product.price.toLocaleString()}</span>`
+      : `₩${product.price.toLocaleString()}`;
+
+  const itemTotal = product.price * quantity;
 
   return `
 <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
   <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
 </div>
 <div>
-  <h3 class="text-base font-normal mb-1 tracking-tight">${saleIcon}${selectedProduct.name}</h3>
+  <h3 class="text-base font-normal mb-1 tracking-tight">${saleIcon}${product.name}</h3>
   <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
   <p class="text-xs text-black mb-3">${priceDisplay}</p>
   <div class="flex items-center gap-4">
-    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="-1">−</button>
-    <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="1">+</button>
+    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
+    <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${quantity}</span>
+    <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
   </div>
 </div>
 <div class="text-right">
-  <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
-  <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${selectedProduct.id}">Remove</a>
+  <div class="text-lg mb-2 tracking-tight tabular-nums">₩${itemTotal.toLocaleString()}</div>
+  <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
 </div>
 `;
+};
+
+/**
+ * 장바구니 전체 아이템들을 렌더링합니다 (선언적 방식)
+ * @param {Array} cartItems - 장바구니 아이템 배열 [{id, quantity}, ...]
+ * @param {Array} products - 전체 상품 목록
+ * @returns {string} 장바구니 HTML
+ */
+export const renderCartItems = (cartItems, products) => {
+  if (!cartItems || cartItems.length === 0) {
+    return ""; // 빈 장바구니
+  }
+
+  return cartItems
+    .map(item => {
+      const product = products.find(p => p.id === item.id);
+      if (!product) return "";
+
+      return `<div id="${item.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">${cartItem(product, item.quantity)}</div>`;
+    })
+    .filter(Boolean) // 빈 문자열 제거
+    .join("");
 };
 
 /**
