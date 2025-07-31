@@ -7,7 +7,6 @@ interface HelpModalProps {
 export const HelpModal = ({ isOpen, isClosing = false, onClose }: HelpModalProps) => {
   if (!isOpen) return null;
 
-  // 배경 클릭시 모달 닫기 (오리지널 동작 복원)
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();

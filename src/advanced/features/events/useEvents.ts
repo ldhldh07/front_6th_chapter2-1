@@ -33,7 +33,7 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
     const luckyIndex = Math.floor(Math.random() * eligibleProducts.length);
     const luckyProduct = eligibleProducts[luckyIndex];
     
-    setProducts(prev => prev.map(product => 
+    setProducts(currentProducts => currentProducts.map(product => 
       product.id === luckyProduct.id 
         ? { 
             ...product, 
@@ -43,7 +43,6 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
         : product
     ));
 
-    // 기존과 동일하게 alert 사용
     alert("⚡번개세일! " + luckyProduct.name + "이(가) 20% 할인 중입니다!");
   }, [products, setProducts]);
 
@@ -61,7 +60,7 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
     
     if (!suggestedProduct) return;
     
-    setProducts(prev => prev.map(product => 
+    setProducts(currentProducts => currentProducts.map(product => 
       product.id === suggestedProduct.id 
         ? { 
             ...product, 
@@ -71,7 +70,6 @@ export const useEvents = ({ products, setProducts, cartItems, lastSelectedItem }
         : product
     ));
 
-    // 기존과 동일하게 alert 사용
     alert("💝 " + suggestedProduct.name + "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!");
   }, [products, setProducts, cartItems.length, lastSelectedItem]);
 

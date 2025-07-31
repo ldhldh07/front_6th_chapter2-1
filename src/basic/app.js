@@ -263,14 +263,14 @@ export const createAppHTML = () => {
 };
 
 /**
- * innerHTML 기반 전체 앱 렌더링 (DOM 조작 대신 사용)
+ * innerHTML 기반 전체 앱 렌더링
  * @param {HTMLElement} rootElement - 루트 DOM 요소
  */
 export const renderApp = (rootElement) => {
   rootElement.innerHTML = createAppHTML();
 };
 
-// ==================== 이벤트 위임 시스템 (React 스타일) ====================
+// ======================== 이벤트 위임 시스템  ========================
 
 /**
  * 이벤트 위임 설정 - HTML data 속성 기반

@@ -169,5 +169,3 @@ export const updateSelectOptions = (productList, productSelectElement, totalStoc
   productSelectElement.innerHTML = optionsHTML;
   productSelectElement.style.borderColor = totalStock < totalStockWarningThreshold ? "orange" : "";
 };
-
-// ==================== Templates는 render.js로 이동 완료 ==================== 
