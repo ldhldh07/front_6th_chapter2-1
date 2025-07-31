@@ -266,11 +266,13 @@ export const updateCartTotalsDisplay = (
   // === 3. 화요일 UI 업데이트 ===
   updateTuesdayUI(isTuesday);
 
-  // === 4. DOM 요소 선언 및 초기화 ===
-  const itemCountElement = document.getElementById("item-count");
-  const summaryDetails = document.getElementById("summary-details");
-  const loyaltyPointsElement = document.getElementById("loyalty-points");
-  const discountInfoElement = document.getElementById("discount-info");
+  // === 4. DOM 요소 참조 ===
+  const {
+    itemCountElement,
+    summaryDetailsElement: summaryDetails,
+    loyaltyPointsElement,
+    discountInfoElement,
+  } = domRefs;
 
   summaryDetails.innerHTML = "";
   discountInfoElement.innerHTML = "";
@@ -362,7 +364,8 @@ export const updateCartTotalsDisplay = (
     calculateTuesdayBonus,
     calculateComboBonuses,
     calculateBulkBonus,
-    getCartProductTypes
+    getCartProductTypes,
+    domRefs
   );
 };
 

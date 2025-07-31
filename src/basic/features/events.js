@@ -16,8 +16,9 @@ import {
   updateSelectOptions,
   findProductById,
   getProductDisplayInfo,
-  updatePricesInCart,
 } from "./products.js";
+
+import { updatePricesInCart } from "./cart.js";
 
 /**
  * 번개세일과 추천상품 할인 이벤트 타이머를 설정합니다

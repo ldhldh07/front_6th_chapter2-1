@@ -114,8 +114,13 @@ export const calculateBulkBonus = itemCount => {
  * @param {number} finalPoints - 최종 포인트
  * @param {Array} pointsDetail - 포인트 상세 내역
  */
-export const displayPointsInfo = (finalPoints, pointsDetail) => {
-  const pointsTag = document.getElementById("loyalty-points");
+export const displayPointsInfo = (
+  finalPoints,
+  pointsDetail,
+  loyaltyPointsElement = null
+) => {
+  const pointsTag =
+    loyaltyPointsElement || document.getElementById("loyalty-points");
 
   if (!pointsTag) return;
 
@@ -139,10 +144,14 @@ export const displayPointsInfo = (finalPoints, pointsDetail) => {
  * 장바구니가 비어있을 때 포인트 UI를 숨깁니다
  * @param {number} cartItemsLength - 장바구니 아이템 수
  */
-export const hidePointsIfEmpty = cartItemsLength => {
+export const hidePointsIfEmpty = (
+  cartItemsLength,
+  loyaltyPointsElement = null
+) => {
   if (cartItemsLength !== 0) return;
 
-  const pointsTag = document.getElementById("loyalty-points");
+  const pointsTag =
+    loyaltyPointsElement || document.getElementById("loyalty-points");
   if (!pointsTag) return;
 
   pointsTag.style.display = "none";
@@ -160,6 +169,7 @@ export const hidePointsIfEmpty = cartItemsLength => {
  * @param {Function} calculateComboBonuses - 콤보 보너스 계산 함수
  * @param {Function} calculateBulkBonus - 대량구매 보너스 계산 함수
  * @param {Function} getCartProductTypes - 장바구니 상품 타입 조회 함수
+ * @param {Object} domRefs - DOM 참조 객체
  */
 export const renderBonusPoints = (
   cartItems,
@@ -171,9 +181,12 @@ export const renderBonusPoints = (
   calculateTuesdayBonus,
   calculateComboBonuses,
   calculateBulkBonus,
-  getCartProductTypes
+  getCartProductTypes,
+  domRefs
 ) => {
-  hidePointsIfEmpty(cartItems.length);
+  const loyaltyPointsElement = domRefs?.loyaltyPointsElement || null;
+
+  hidePointsIfEmpty(cartItems.length, loyaltyPointsElement);
   if (cartItems.length === 0) return;
 
   const basePoints = calculateBasePoints(totalAmount);
@@ -213,5 +226,5 @@ export const renderBonusPoints = (
   const finalPoints = tuesdayPoints + comboPoints + bulkPoints;
 
   appState.bonusPoints = finalPoints;
-  displayPointsInfo(finalPoints, pointsDetail);
+  displayPointsInfo(finalPoints, pointsDetail, loyaltyPointsElement);
 };

@@ -45,6 +45,10 @@ const domRefs = {
   addButton: null,
   cartDisplay: null,
   cartTotalElement: null,
+  itemCountElement: null,
+  summaryDetailsElement: null,
+  loyaltyPointsElement: null,
+  discountInfoElement: null,
 };
 
 // ==================== Shared Utilities ====================
@@ -106,6 +110,10 @@ const setupDOMRefs = () => {
   domRefs.stockInformation = document.getElementById("stock-status");
   domRefs.cartDisplay = document.getElementById("cart-items");
   domRefs.cartTotalElement = document.getElementById("cart-total");
+  domRefs.itemCountElement = document.getElementById("item-count");
+  domRefs.summaryDetailsElement = document.getElementById("summary-details");
+  domRefs.loyaltyPointsElement = document.getElementById("loyalty-points");
+  domRefs.discountInfoElement = document.getElementById("discount-info");
 
   // 매뉴얼 시스템 이벤트 연결
   setupManualEvents();
