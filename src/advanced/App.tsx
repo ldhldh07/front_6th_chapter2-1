@@ -50,37 +50,41 @@ function App() {
     setProducts([...INITIAL_PRODUCT_DATA]);
   }, []);
 
-  const totalStock = products.reduce(
-    (sum, product) => sum + product.quantity,
-    0
-  );
-  const lowStockProducts = getLowStockProducts(products, 5);
+  const totalStock = useMemo(() => {
+    return products.reduce((sum, product) => sum + product.quantity, 0);
+  }, [products]);
+
+  const lowStockProducts = useMemo(() => {
+    return getLowStockProducts(products, 5);
+  }, [getLowStockProducts, products]);
+
+  const getAddToCartMessage = (reason: string | undefined) => {
+    return reason === "out_of_stock"
+      ? "재고가 부족합니다."
+      : "상품을 추가할 수 없습니다.";
+  };
 
   const handleAddClick = () => {
     if (!selectedProductId) return;
 
     const result = handleAddToCart(selectedProductId, products);
     if (!result.success) {
-      const message =
-        result.reason === "out_of_stock"
-          ? "재고가 부족합니다."
-          : "상품을 추가할 수 없습니다.";
-
-      // TODO: 추후 토스트 알림이나 모달로 개선 가능
-      alert(message);
+      alert(getAddToCartMessage(result.reason));
     } else {
       setLastSelectedItem(selectedProductId);
     }
     setSelectedProductId("");
   };
 
-  const stockMessage = lowStockProducts
-    .map(product =>
-      product.quantity > 0
-        ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
-        : `${product.name}: 품절`
-    )
-    .join("\n");
+  const stockMessage = useMemo(() => {
+    return lowStockProducts
+      .map(product =>
+        product.quantity > 0
+          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+          : `${product.name}: 품절`
+      )
+      .join("\n");
+  }, [lowStockProducts]);
 
   return (
     <div className="app-container">

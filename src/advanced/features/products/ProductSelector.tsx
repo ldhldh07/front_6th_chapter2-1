@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import type { Product } from "../../shared/types";
 
 interface ProductSelectorProps {
@@ -21,6 +22,13 @@ export const ProductSelector = ({
   stockWarningThreshold,
   getOptionData,
 }: ProductSelectorProps) => {
+  const optionsData = useMemo(() => {
+    return products.map(product => ({
+      product,
+      optionData: getOptionData(product),
+    }));
+  }, [products, getOptionData]);
+
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
@@ -34,8 +42,7 @@ export const ProductSelector = ({
         }`}
       >
         <option value="">상품을 선택하세요</option>
-        {products.map(product => {
-          const optionData = getOptionData(product);
+        {optionsData.map(({ product, optionData }) => {
           return (
             <option
               key={product.id}

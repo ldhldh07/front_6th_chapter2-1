@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { CartItem, Product } from "../../shared/types";
 import { formatPrice, findProductById } from "../../shared/utils";
 
@@ -16,10 +17,14 @@ export const CartItems = ({
   products,
   onCartAction,
 }: CartItemsProps) => {
+  const productsMap = useMemo(() => {
+    return new Map(products.map(product => [product.id, product]));
+  }, [products]);
+
   return (
     <div>
       {cartItems.map(item => {
-        const product = findProductById(products, item.id);
+        const product = productsMap.get(item.id);
         if (!product) return null;
 
         const saleIcon =

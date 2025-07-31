@@ -13,7 +13,6 @@ export const useCart = () => {
     selectedItemId: string,
     productList: Product[]
   ) => {
-    // 입력값 타입 검증
     if (typeof selectedItemId !== "string" || !selectedItemId.trim()) {
       return { isValid: false, reason: "no_product_selected" };
     }
@@ -28,7 +27,6 @@ export const useCart = () => {
       return { isValid: false, reason: "product_not_found" };
     }
 
-    // 상품 데이터 무결성 검증
     if (
       typeof selectedProduct.quantity !== "number" ||
       selectedProduct.quantity < 0
@@ -117,10 +115,12 @@ export const useCart = () => {
     const existingItem = findProductById(cartItems, selectedProduct.id);
 
     if (!existingItem) {
+      // 새로운 상품이면 새 아이템으로 추가
       addNewItemToCart(selectedProduct);
       return { success: true };
     }
 
+    // 기존 상품이면 수량 증가
     return increaseExistingItemQuantity(selectedProduct, existingItem);
   };
 

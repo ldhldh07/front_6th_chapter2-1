@@ -53,14 +53,12 @@ export const calculateSubtotal = <T extends { id: string; price: number }>(
   cartItems: { id: string; quantity: number }[],
   products: T[]
 ): number => {
-  // 입력값 검증
   if (!Array.isArray(cartItems) || !Array.isArray(products)) {
     console.warn("calculateSubtotal: 잘못된 입력값", { cartItems, products });
     return 0;
   }
 
   return cartItems.reduce((total, item) => {
-    // 아이템 검증
     if (!item || typeof item.quantity !== "number" || item.quantity < 0) {
       console.warn("calculateSubtotal: 잘못된 아이템", item);
       return total;
@@ -71,7 +69,6 @@ export const calculateSubtotal = <T extends { id: string; price: number }>(
       return total;
     }
 
-    // 가격 검증
     if (typeof product.price !== "number" || product.price < 0) {
       console.warn("calculateSubtotal: 잘못된 상품 가격", product);
       return total;
